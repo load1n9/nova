@@ -26,7 +26,7 @@ pub(crate) enum ThisBindingStatus {
 /// Record also contains the state that is used to perform super method
 /// invocations from within the function.
 #[derive(Debug)]
-pub(crate) struct FunctionEnvironment {
+pub(crate) struct FunctionEnvironment<'a> {
     /// ### \[\[ThisValue\]\]
     ///
     /// This is the this value used for this invocation of the function.
@@ -58,11 +58,11 @@ pub(crate) struct FunctionEnvironment {
     ///
     /// TODO: Use Struct of Arrays to keep the DeclarativeEnvironment alignside
     /// FunctionEnvironment
-    pub(crate) declarative_environment: DeclarativeEnvironmentIndex,
+    pub(crate) declarative_environment: DeclarativeEnvironmentIndex<'a>,
 }
 
-impl std::ops::Deref for FunctionEnvironment {
-    type Target = DeclarativeEnvironmentIndex;
+impl<'a> std::ops::Deref for FunctionEnvironment<'a> {
+    type Target = DeclarativeEnvironmentIndex<'a>;
     fn deref(&self) -> &Self::Target {
         &self.declarative_environment
     }
@@ -73,11 +73,11 @@ impl std::ops::Deref for FunctionEnvironment {
 /// The abstract operation NewFunctionEnvironment takes arguments F (an
 /// ECMAScript function object) and newTarget (an Object or undefined) and
 /// returns a Function Environment Record.
-pub(crate) fn new_function_environment(
+pub(crate) fn new_function_environment<'a>(
     agent: &mut Agent,
     f: ECMAScriptFunction,
     new_target: Option<Object>,
-) -> FunctionEnvironmentIndex {
+) -> FunctionEnvironmentIndex<'a> {
     let ecmascript_function_object = f.heap_data(agent);
     let this_mode = ecmascript_function_object.this_mode;
     // 1. Let env be a new Function Environment Record containing no bindings.
@@ -111,12 +111,12 @@ pub(crate) fn new_function_environment(
     agent.heap.environments.push_function_environment(env)
 }
 
-impl FunctionEnvironmentIndex {
-    pub(super) fn heap_data(self, agent: &Agent) -> &FunctionEnvironment {
+impl<'a> FunctionEnvironmentIndex<'_> {
+    pub(super) fn heap_data(self, agent: &'a Agent<'a>) -> &'a FunctionEnvironment<'a> {
         agent.heap.environments.get_function_environment(self)
     }
 
-    fn heap_data_mut(self, agent: &mut Agent) -> &mut FunctionEnvironment {
+    fn heap_data_mut(self, agent: &'a mut Agent<'a>) -> &'a mut FunctionEnvironment<'a> {
         agent.heap.environments.get_function_environment_mut(self)
     }
 

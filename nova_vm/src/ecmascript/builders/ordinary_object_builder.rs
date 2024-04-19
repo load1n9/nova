@@ -28,7 +28,7 @@ pub struct NoProperties;
 pub struct CreatorProperties(Vec<(PropertyKey, Option<ElementDescriptor>, Option<Value>)>);
 
 pub struct OrdinaryObjectBuilder<'agent, P, Pr> {
-    pub(crate) agent: &'agent mut Agent,
+    pub(crate) agent: &'agent mut Agent<'agent>,
     this: OrdinaryObject,
     realm: RealmIdentifier,
     prototype: P,

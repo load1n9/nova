@@ -29,8 +29,7 @@ use crate::{
 /// if the Writable attribute of the corresponding property is false. Immutable
 /// bindings do not exist for Object Environment Records.
 #[derive(Debug, Clone)]
-pub struct ObjectEnvironment {
-    /// ### \[\[BindingObject\]\]
+pub struct ObjectEnvironment<'a> {
     ///
     /// The binding object of this Environment Record.
     pub(crate) binding_object: Object,
@@ -44,10 +43,10 @@ pub struct ObjectEnvironment {
     /// ### \[\[OuterEnv\]\]
     ///
     /// See [OuterEnv].
-    pub(crate) outer_env: OuterEnv,
+    pub(crate) outer_env: OuterEnv<'a>,
 }
 
-impl ObjectEnvironment {
+impl<'a> ObjectEnvironment<'_> {
     /// ### [9.1.2.3 NewObjectEnvironment ( O, W, E )](https://tc39.es/ecma262/#sec-newobjectenvironmenthttps://tc39.es/ecma262/#sec-newobjectenvironment)
     ///
     /// The abstract operation NewObjectEnvironment takes arguments O (an
@@ -57,7 +56,7 @@ impl ObjectEnvironment {
         binding_object: Object,
         is_with_environment: bool,
         outer_env: OuterEnv,
-    ) -> ObjectEnvironment {
+    ) -> ObjectEnvironment<'a> {
         // 1. Let env be a new Object Environment Record.
         ObjectEnvironment {
             // 2. Set env.[[BindingObject]] to O.
@@ -71,8 +70,8 @@ impl ObjectEnvironment {
     }
 }
 
-impl ObjectEnvironmentIndex {
-    pub(super) fn heap_data(self, agent: &Agent) -> &ObjectEnvironment {
+impl<'a> ObjectEnvironmentIndex<'_> {
+    pub(super) fn heap_data(self, agent: &Agent) -> &'a ObjectEnvironment<'a> {
         agent.heap.environments.get_object_environment(self)
     }
 

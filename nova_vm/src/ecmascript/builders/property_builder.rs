@@ -40,7 +40,7 @@ pub struct CreatorValue(Value);
 pub struct CreatorReadOnlyValue(Value);
 
 pub struct PropertyBuilder<'agent, K, D> {
-    pub(crate) agent: &'agent mut Agent,
+    pub(crate) agent: &'agent mut Agent<'agent>,
     key: K,
     definition: D,
     enumerable: bool,

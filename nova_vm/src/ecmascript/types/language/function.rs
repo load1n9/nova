@@ -33,10 +33,10 @@ pub use into_function::IntoFunction;
 /// https://tc39.es/ecma262/#function-object
 #[derive(Clone, Copy, PartialEq)]
 #[repr(u8)]
-pub enum Function {
+pub enum Function<'a> {
     BoundFunction(BoundFunctionIndex) = BOUND_FUNCTION_DISCRIMINANT,
-    BuiltinFunction(BuiltinFunctionIndex) = BUILTIN_FUNCTION_DISCRIMINANT,
-    ECMAScriptFunction(ECMAScriptFunctionIndex) = ECMASCRIPT_FUNCTION_DISCRIMINANT,
+    BuiltinFunction(BuiltinFunctionIndex<'a>) = BUILTIN_FUNCTION_DISCRIMINANT,
+    ECMAScriptFunction(ECMAScriptFunctionIndex<'a>) = ECMASCRIPT_FUNCTION_DISCRIMINANT,
     BuiltinGeneratorFunction = BUILTIN_GENERATOR_FUNCTION_DISCRIMINANT,
     BuiltinConstructorFunction = BUILTIN_CONSTRUCTOR_FUNCTION_DISCRIMINANT,
     BuiltinPromiseResolveFunction = BUILTIN_PROMISE_RESOLVE_FUNCTION_DISCRIMINANT,
@@ -49,7 +49,7 @@ pub enum Function {
     ECMAScriptGeneratorFunction = ECMASCRIPT_GENERATOR_FUNCTION_DISCRIMINANT,
 }
 
-impl std::fmt::Debug for Function {
+impl std::fmt::Debug for Function<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Function::BoundFunction(d) => write!(f, "BoundFunction({:?})", d),
@@ -69,37 +69,37 @@ impl std::fmt::Debug for Function {
     }
 }
 
-impl IntoValue for Function {
+impl IntoValue for Function<'_> {
     fn into_value(self) -> Value {
         self.into()
     }
 }
 
-impl IntoObject for Function {
+impl IntoObject for Function<'_> {
     fn into_object(self) -> Object {
         self.into()
     }
 }
 
-impl From<BoundFunctionIndex> for Function {
+impl From<BoundFunctionIndex> for Function<'_> {
     fn from(value: BoundFunctionIndex) -> Self {
         Function::BoundFunction(value)
     }
 }
 
-impl From<BuiltinFunctionIndex> for Function {
+impl From<BuiltinFunctionIndex<'_>> for Function<'_> {
     fn from(value: BuiltinFunctionIndex) -> Self {
         Function::BuiltinFunction(value)
     }
 }
 
-impl From<ECMAScriptFunctionIndex> for Function {
+impl From<ECMAScriptFunctionIndex<'_>> for Function<'_> {
     fn from(value: ECMAScriptFunctionIndex) -> Self {
         Function::ECMAScriptFunction(value)
     }
 }
 
-impl TryFrom<Object> for Function {
+impl TryFrom<Object> for Function<'_> {
     type Error = ();
     fn try_from(value: Object) -> Result<Self, Self::Error> {
         match value {
@@ -125,7 +125,7 @@ impl TryFrom<Object> for Function {
     }
 }
 
-impl TryFrom<Value> for Function {
+impl TryFrom<Value> for Function<'_> {
     type Error = ();
     fn try_from(value: Value) -> Result<Self, Self::Error> {
         match value {
@@ -149,7 +149,7 @@ impl TryFrom<Value> for Function {
     }
 }
 
-impl From<Function> for Object {
+impl From<Function<'_>> for Object {
     fn from(value: Function) -> Self {
         match value {
             Function::BoundFunction(d) => Object::from(d),
@@ -169,7 +169,7 @@ impl From<Function> for Object {
     }
 }
 
-impl From<Function> for Value {
+impl From<Function<'_>> for Value {
     fn from(value: Function) -> Self {
         match value {
             Function::BoundFunction(d) => Value::BoundFunction(d),
@@ -189,13 +189,13 @@ impl From<Function> for Value {
     }
 }
 
-impl Function {
+impl Function<'_> {
     pub(crate) const fn new_builtin_function(idx: BuiltinFunctionIndex) -> Self {
         Self::BuiltinFunction(idx)
     }
 }
 
-impl OrdinaryObjectInternalSlots for Function {
+impl OrdinaryObjectInternalSlots for Function<'_> {
     fn extensible(self, agent: &Agent) -> bool {
         if let Some(object_index) = match self {
             Function::BoundFunction(d) => agent.heap.get(d).object_index,
@@ -301,7 +301,7 @@ impl OrdinaryObjectInternalSlots for Function {
     }
 }
 
-impl InternalMethods for Function {
+impl InternalMethods for Function<'_> {
     fn get_prototype_of(self, _agent: &mut Agent) -> JsResult<Option<Object>> {
         todo!()
     }

@@ -2,9 +2,9 @@ use super::Object;
 use crate::ecmascript::execution::Agent;
 
 /// ### [10.1 Ordinary Object Internal Methods and Internal Slots](https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots)
-pub trait OrdinaryObjectInternalSlots
+pub trait OrdinaryObjectInternalSlots<'a>
 where
-    Self: Sized + Into<Object>,
+    Self: Sized + Into<Object<'a>>,
 {
     /// #### \[\[Extensible\]\]
     ///
@@ -21,7 +21,7 @@ where
     /// All ordinary objects have an internal slot called \[\[Prototype\]\].
     /// The value of this internal slot is either null or an object and is used
     /// for implementing inheritance.
-    fn prototype(self, agent: &Agent) -> Option<Object>;
+    fn prototype(self, agent: &Agent) -> Option<Object<'a>>;
 
     /// #### \[\[Prototype\]\]
     fn set_prototype(self, agent: &mut Agent, prototype: Option<Object>);

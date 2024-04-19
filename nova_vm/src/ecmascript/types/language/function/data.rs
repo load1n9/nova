@@ -10,22 +10,22 @@ use crate::{
 use super::Function;
 
 #[derive(Debug, Clone)]
-pub struct BoundFunctionHeapData {
+pub struct BoundFunctionHeapData<'a> {
     pub(crate) object_index: Option<ObjectIndex>,
     pub(crate) length: u8,
-    pub(crate) function: Function,
+    pub(crate) function: Function<'a>,
     pub(crate) bound_values: ElementsVector,
     pub(crate) name: Option<String>,
 }
 
 #[derive(Debug, Clone)]
-pub struct BuiltinFunctionHeapData {
+pub struct BuiltinFunctionHeapData<'a> {
     pub(crate) object_index: Option<ObjectIndex>,
     pub(crate) length: u8,
     /// #### \[\[Realm]]
     /// A Realm Record that represents the realm in which the function was
     /// created.
-    pub(crate) realm: RealmIdentifier,
+    pub(crate) realm: RealmIdentifier<'a>,
     /// #### \[\[InitialName]]
     /// A String that is the initial name of the function. It is used by
     /// 20.2.3.5 (`Function.prototype.toString()`).
@@ -34,11 +34,11 @@ pub struct BuiltinFunctionHeapData {
 }
 
 #[derive(Debug)]
-pub struct ECMAScriptFunctionHeapData {
+pub struct ECMAScriptFunctionHeapData<'a> {
     pub(crate) object_index: Option<ObjectIndex>,
     pub(crate) length: u8,
-    pub(crate) ecmascript_function: ECMAScriptFunctionObjectHeapData,
+    pub(crate) ecmascript_function: ECMAScriptFunctionObjectHeapData<'a>,
     pub(crate) name: Option<String>,
 }
 
-unsafe impl Send for ECMAScriptFunctionHeapData {}
+unsafe impl Send for ECMAScriptFunctionHeapData<'_> {}

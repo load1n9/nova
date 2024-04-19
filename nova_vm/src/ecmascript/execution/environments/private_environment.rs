@@ -29,27 +29,27 @@ impl PrivateName {
 /// evaluated, a new PrivateEnvironment Record is created to record the Private
 /// Names declared by that class.
 #[derive(Debug)]
-pub struct PrivateEnvironment {
+pub struct PrivateEnvironment<'a> {
     /// ### \[\[OuterPrivateEnvironment\]\]
     ///
     /// The PrivateEnvironment Record of the nearest containing class. null if
     /// the class with which this PrivateEnvironment Record is associated is
     /// not contained in any other class.
-    outer_private_environment: Option<PrivateEnvironmentIndex>,
+    outer_private_environment: Option<PrivateEnvironmentIndex<'a>>,
 
     /// ### \[\[Names\]\]
     ///
     /// The Private Names declared by this class.
-    names: HashMap<Atom, PrivateName>,
+    names: HashMap<Atom<'a>, PrivateName>,
 }
 
 /// ### [9.2.1.1 NewPrivateEnvironment ( outerPrivEnv )](https://tc39.es/ecma262/#sec-newprivateenvironment)
 ///
 /// The abstract operation NewPrivateEnvironment takes argument outerPrivEnv (a
 /// PrivateEnvironment Record or null) and returns a PrivateEnvironment Record.
-pub(crate) fn new_private_environment(
+pub(crate) fn new_private_environment<'a>(
     outer_private_environment: Option<PrivateEnvironmentIndex>,
-) -> PrivateEnvironment {
+) -> PrivateEnvironment<'a> {
     // 1. Let names be a new empty List.
     // 2. Return the PrivateEnvironment Record {
     PrivateEnvironment {

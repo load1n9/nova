@@ -18,9 +18,9 @@ pub(crate) use intrinsics::ProtoIntrinsics;
 use std::{any::Any, marker::PhantomData};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct RealmIdentifier(u32, PhantomData<Realm>);
+pub struct RealmIdentifier<'a>(u32, PhantomData<Realm<'a>>);
 
-impl RealmIdentifier {
+impl RealmIdentifier<'_> {
     /// Creates a realm identififer from a usize.
     ///
     /// ## Panics
@@ -57,11 +57,11 @@ impl RealmIdentifier {
 /// within the scope of that global environment, and other associated state and
 /// resources.
 #[derive(Debug)]
-pub struct Realm {
+pub struct Realm<'a> {
     /// ### \[\[AgentSignifier]]
     ///
     /// The agent that owns this realm
-    agent_signifier: PhantomData<Agent>,
+    agent_signifier: PhantomData<Agent<'a>>,
 
     /// ### \[\[Intrinsics]]
     ///
@@ -76,7 +76,7 @@ pub struct Realm {
     /// ### \[\[GlobalEnv]]
     ///
     /// The global environment for this realm.
-    pub(crate) global_env: Option<GlobalEnvironmentIndex>,
+    pub(crate) global_env: Option<GlobalEnvironmentIndex<'a>>,
 
     /// ### \[\[TemplateMap]]
     ///
@@ -102,9 +102,9 @@ pub struct Realm {
     pub(crate) host_defined: Option<&'static dyn Any>,
 }
 
-unsafe impl Send for Realm {}
+unsafe impl Send for Realm<'_> {}
 
-impl Realm {
+impl Realm<'_> {
     pub(crate) fn intrinsics(&self) -> &Intrinsics {
         &self.intrinsics
     }
@@ -118,7 +118,7 @@ impl Realm {
 ///
 /// The abstract operation CreateRealm takes no arguments and returns a Realm
 /// Record.
-pub fn create_realm(agent: &mut Agent) -> RealmIdentifier {
+pub fn create_realm<'a>(agent: &mut Agent) -> RealmIdentifier<'a> {
     // 1. Let realmRec be a new Realm Record.
     let realm_rec = Realm {
         // 2. Perform CreateIntrinsics(realmRec).

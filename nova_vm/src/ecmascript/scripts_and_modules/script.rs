@@ -29,9 +29,9 @@ use std::{any::Any, collections::HashSet, marker::PhantomData};
 pub type HostDefined = &'static mut dyn Any;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct ScriptIdentifier(u32, PhantomData<Script>);
+pub(crate) struct ScriptIdentifier<'a>(u32, PhantomData<Script<'a>>);
 
-impl ScriptIdentifier {
+impl ScriptIdentifier<'_> {
     /// Creates a script identififer from a usize.
     ///
     /// ## Panics
@@ -64,13 +64,13 @@ impl ScriptIdentifier {
 ///
 /// A Script Record encapsulates information about a script being evaluated.
 #[derive(Debug)]
-pub struct Script {
+pub struct Script<'a> {
     /// ### \[\[Realm]]
     ///
     /// The realm within which this script was created. undefined if not yet
     /// assigned.
     // TODO: This should be able to be undefined sometimes.
-    pub(crate) realm: RealmIdentifier,
+    pub(crate) realm: RealmIdentifier<'a>,
 
     /// ### \[\[ECMAScriptCode]]
     ///
@@ -96,9 +96,9 @@ pub struct Script {
     source_text: Box<str>,
 }
 
-unsafe impl Send for Script {}
+unsafe impl Send for Script<'_> {}
 
-pub type ScriptOrErrors = Result<Script, Vec<oxc_diagnostics::Error>>;
+pub type ScriptOrErrors<'a> = Result<Script<'a>, Vec<oxc_diagnostics::Error>>;
 
 /// ### [16.1.5 ParseScript ( sourceText, realm, hostDefined )](https://tc39.es/ecma262/#sec-parse-script)
 ///
@@ -107,12 +107,12 @@ pub type ScriptOrErrors = Result<Script, Vec<oxc_diagnostics::Error>>;
 /// (anything) and returns a Script Record or a non-empty List of SyntaxError
 /// objects. It creates a Script Record based upon the result of parsing
 /// sourceText as a Script.
-pub fn parse_script(
+pub fn parse_script<'a>(
     allocator: &Allocator,
     source_text: Box<str>,
     realm: RealmIdentifier,
     host_defined: Option<HostDefined>,
-) -> ScriptOrErrors {
+) -> ScriptOrErrors<'a> {
     // 1. Let script be ParseText(sourceText, Script).
     let parser = Parser::new(allocator, &source_text, SourceType::default());
     let ParserReturn {

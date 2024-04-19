@@ -49,7 +49,7 @@ pub struct NoProperties;
 pub struct CreatorProperties(Vec<(PropertyKey, Option<ElementDescriptor>, Option<Value>)>);
 
 pub struct BuiltinFunctionBuilder<'agent, P, L, N, B, Pr> {
-    pub(crate) agent: &'agent mut Agent,
+    pub(crate) agent: &'agent mut Agent<'agent>,
     this: BuiltinFunction,
     object_index: Option<ObjectIndex>,
     realm: RealmIdentifier,

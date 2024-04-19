@@ -369,10 +369,10 @@ pub(crate) fn ordinary_has_instance(agent: &mut Agent, c: Value, o: Value) -> Js
 /// The abstract operation GetFunctionRealm takes argument obj (a function
 /// object) and returns either a normal completion containing a Realm Record or
 /// a throw completion.
-pub(crate) fn get_function_realm(
+pub(crate) fn get_function_realm<'a>(
     agent: &mut Agent,
     obj: impl IntoObject,
-) -> JsResult<RealmIdentifier> {
+) -> JsResult<RealmIdentifier<'a>> {
     // 1. If obj has a [[Realm]] internal slot, then
     // a. Return obj.[[Realm]].
     let obj = obj.into_object();

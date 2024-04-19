@@ -124,9 +124,9 @@ pub type ArrayBufferIndex = BaseIndex<ArrayBufferHeapData>;
 pub type ArrayIndex = BaseIndex<ArrayHeapData>;
 pub type BigIntIndex = BaseIndex<BigIntHeapData>;
 pub type BoundFunctionIndex = BaseIndex<BoundFunctionHeapData>;
-pub type BuiltinFunctionIndex = BaseIndex<BuiltinFunctionHeapData>;
+pub type BuiltinFunctionIndex<'a> = BaseIndex<BuiltinFunctionHeapData<'a>>;
 pub type DateIndex = BaseIndex<DateHeapData>;
-pub type ECMAScriptFunctionIndex = BaseIndex<ECMAScriptFunctionHeapData>;
+pub type ECMAScriptFunctionIndex<'a> = BaseIndex<ECMAScriptFunctionHeapData<'a>>;
 pub type ErrorIndex = BaseIndex<ErrorHeapData>;
 pub type NumberIndex = BaseIndex<NumberHeapData>;
 pub type ObjectIndex = BaseIndex<ObjectHeapData>;
@@ -136,8 +136,8 @@ pub type StringIndex = BaseIndex<StringHeapData>;
 pub type SymbolIndex = BaseIndex<SymbolHeapData>;
 pub type ElementIndex = BaseIndex<[Option<Value>]>;
 
-impl ObjectIndex {
-    pub fn get(self, agent: &Agent) -> &ObjectHeapData {
+impl<'a> ObjectIndex {
+    pub fn get(self, agent: &Agent) -> &'a ObjectHeapData {
         agent
             .heap
             .objects

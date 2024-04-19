@@ -13,14 +13,14 @@ use std::collections::HashMap;
 /// VariableDeclarations, and Catch clauses that directly associate identifier
 /// bindings with ECMAScript language values.
 #[derive(Debug, Clone)]
-pub(crate) struct DeclarativeEnvironment {
+pub(crate) struct DeclarativeEnvironment<'a> {
     /// ### \[\[OuterEnv\]\]
     ///
     /// See [OuterEnv].
-    pub(crate) outer_env: OuterEnv,
+    pub(crate) outer_env: OuterEnv<'a>,
 
     /// The environment's bindings.
-    pub(crate) bindings: HashMap<Atom, Binding>,
+    pub(crate) bindings: HashMap<Atom<'a>, Binding>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -32,13 +32,13 @@ pub(crate) struct Binding {
     pub(super) deletable: bool,
 }
 
-impl DeclarativeEnvironment {
+impl<'a> DeclarativeEnvironment<'_> {
     /// ### [9.1.2.2 NewDeclarativeEnvironment ( E )](https://tc39.es/ecma262/#sec-newdeclarativeenvironment)
     ///
     /// The abstract operation NewDeclarativeEnvironment takes argument E (an
     /// Environment Record or null) and returns a Declarative Environment
     /// Record.
-    pub(crate) fn new(outer_env: OuterEnv) -> DeclarativeEnvironment {
+    pub(crate) fn new(outer_env: OuterEnv) -> DeclarativeEnvironment<'a> {
         // 1. Let env be a new Declarative Environment Record containing no bindings.
         // 2. Set env.[[OuterEnv]] to E.
         // 3. Return env.
@@ -143,12 +143,12 @@ impl DeclarativeEnvironment {
     }
 }
 
-impl DeclarativeEnvironmentIndex {
-    pub(super) fn heap_data(self, agent: &Agent) -> &DeclarativeEnvironment {
+impl<'a> DeclarativeEnvironmentIndex<'_> {
+    pub(super) fn heap_data(self, agent: &Agent) -> &'a DeclarativeEnvironment<'a> {
         agent.heap.environments.get_declarative_environment(self)
     }
 
-    pub(super) fn heap_data_mut(self, agent: &mut Agent) -> &mut DeclarativeEnvironment {
+    pub(super) fn heap_data_mut(self, agent: &mut Agent) -> &'a mut DeclarativeEnvironment<'a> {
         agent
             .heap
             .environments
@@ -352,10 +352,10 @@ impl DeclarativeEnvironmentIndex {
 /// The abstract operation NewDeclarativeEnvironment takes argument E (an
 /// Environment Record or null) and returns a Declarative Environment
 /// Record.
-pub(crate) fn new_declarative_environment(
+pub(crate) fn new_declarative_environment<'a>(
     agent: &mut Agent,
     outer_env: OuterEnv,
-) -> DeclarativeEnvironmentIndex {
+) -> DeclarativeEnvironmentIndex<'a> {
     // 1. Let env be a new Declarative Environment Record containing no bindings.
     // 2. Set env.[[OuterEnv]] to E.
     agent

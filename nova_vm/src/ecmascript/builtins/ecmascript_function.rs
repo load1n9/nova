@@ -108,12 +108,12 @@ pub enum ThisMode {
 
 /// ### [10.2 ECMAScript Function Objects](https://tc39.es/ecma262/#sec-ecmascript-function-objects)
 #[derive(Debug)]
-pub(crate) struct ECMAScriptFunctionObjectHeapData {
+pub(crate) struct ECMAScriptFunctionObjectHeapData<'a> {
     /// \[\[Environment]]
-    pub environment: EnvironmentIndex,
+    pub environment: EnvironmentIndex<'a>,
 
     /// \[\[PrivateEnvironment]]
-    pub private_environment: Option<PrivateEnvironmentIndex>,
+    pub private_environment: Option<PrivateEnvironmentIndex<'a>>,
 
     /// \[\[FormalParameters]]
     ///
@@ -159,8 +159,8 @@ pub(crate) struct OrdinaryFunctionCreateParams<'agent, 'program> {
     pub parameters_list: &'agent FormalParameters<'program>,
     pub body: &'agent FunctionBody<'program>,
     pub this_mode: ThisMode,
-    pub env: EnvironmentIndex,
-    pub private_env: Option<PrivateEnvironmentIndex>,
+    pub env: EnvironmentIndex<'agent>,
+    pub private_env: Option<PrivateEnvironmentIndex<'agent>>,
 }
 
 impl InternalMethods for ECMAScriptFunction {
@@ -288,8 +288,8 @@ impl InternalMethods for ECMAScriptFunction {
     }
 }
 
-impl ECMAScriptFunction {
-    pub(crate) fn heap_data(self, agent: &Agent) -> &ECMAScriptFunctionObjectHeapData {
+impl<'a> ECMAScriptFunction {
+    pub(crate) fn heap_data(self, agent: &Agent) -> &'a ECMAScriptFunctionObjectHeapData<'a> {
         &agent.heap.get(self.0).ecmascript_function
     }
 }
@@ -299,11 +299,11 @@ impl ECMAScriptFunction {
 /// The abstract operation PrepareForOrdinaryCall takes arguments `F` (an
 /// ECMAScript function object) and newTarget (an Object or undefined) and
 /// returns an execution context.
-pub(crate) fn prepare_for_ordinary_call(
+pub(crate) fn prepare_for_ordinary_call<'a>(
     agent: &mut Agent,
     f: ECMAScriptFunction,
     new_target: Option<Object>,
-) -> &ExecutionContext {
+) -> &'a ExecutionContext<'a> {
     let ecmascript_function_object = f.heap_data(agent);
     let private_environment = ecmascript_function_object.private_environment;
     let script_or_module = ecmascript_function_object.script_or_module;
@@ -748,7 +748,7 @@ fn set_ecmascript_function_length(
 /// Environment Record is created for the body declarations. Formal parameters
 /// and functions are initialized as part of FunctionDeclarationInstantiation.
 /// All other bindings are initialized during evaluation of the function body.
-pub(crate) fn function_declaration_instantiation(
+pub(crate) fn function_declaration_instantiation<'a>(
     agent: &mut Agent,
     function_object: ECMAScriptFunction,
     arguments_list: ArgumentsList,

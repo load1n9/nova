@@ -20,8 +20,8 @@ use oxc_syntax::operator::{BinaryOperator, UnaryOperator};
 pub type IndexType = u16;
 
 pub(crate) struct CompileContext<'agent> {
-    agent: &'agent mut Agent,
-    exe: Executable,
+    agent: &'agent mut Agent<'agent>,
+    exe: Executable<'agent>,
     /// NamedEvaluation name parameter
     name_identifier: Option<usize>,
 }
@@ -38,15 +38,15 @@ pub(crate) struct FunctionExpression {
 /// - This is inspired by and/or copied from Kiesel engine:
 ///   Copyright (c) 2023-2024 Linus Groh
 #[derive(Debug)]
-pub(crate) struct Executable {
+pub(crate) struct Executable<'a> {
     pub instructions: Vec<u8>,
     pub(crate) constants: Vec<Value>,
-    pub(crate) identifiers: Vec<Atom>,
-    pub(crate) references: Vec<Reference>,
+    pub(crate) identifiers: Vec<Atom<'a>>,
+    pub(crate) references: Vec<Reference<'a>>,
     pub(crate) function_expressions: Vec<FunctionExpression>,
 }
 
-impl Executable {
+impl<'a> Executable<'_> {
     pub(super) fn get_instruction(&self, ip: &mut usize) -> Option<Instr> {
         if *ip >= self.instructions.len() {
             return None;
@@ -88,7 +88,7 @@ impl Executable {
         None
     }
 
-    pub(crate) fn compile_script(agent: &mut Agent, script: ScriptIdentifier) -> Executable {
+    pub(crate) fn compile_script(agent: &mut Agent, script: ScriptIdentifier) -> Executable<'a> {
         eprintln!();
         eprintln!("=== Compiling Script ===");
         eprintln!();
@@ -108,7 +108,7 @@ impl Executable {
         Self::_compile_statements(agent, body)
     }
 
-    pub(crate) fn compile_function_body(agent: &mut Agent, body: &FunctionBody<'_>) -> Executable {
+    pub(crate) fn compile_function_body(agent: &mut Agent, body: &FunctionBody<'_>) -> Executable<'a> {
         eprintln!();
         eprintln!("=== Compiling Function ===");
         eprintln!();
@@ -120,7 +120,7 @@ impl Executable {
         Self::_compile_statements(agent, body)
     }
 
-    fn _compile_statements(agent: &mut Agent, body: &[Statement]) -> Executable {
+    fn _compile_statements(agent: &mut Agent, body: &[Statement]) -> Executable<'a> {
         let mut ctx = CompileContext {
             agent,
             exe: Executable {
@@ -310,7 +310,7 @@ fn is_reference(expression: &ast::Expression) -> bool {
     }
 }
 
-impl CompileEvaluation for ast::NumberLiteral<'_> {
+impl CompileEvaluation for ast::NumericLiteral<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         let constant = ctx.agent.heap.create(self.value);
         ctx.exe
@@ -325,7 +325,7 @@ impl CompileEvaluation for ast::BooleanLiteral {
     }
 }
 
-impl CompileEvaluation for ast::BigintLiteral {
+impl CompileEvaluation for ast::BigIntLiteral<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         let constant = ctx.agent.heap.create(BigIntHeapData {
             data: self.value.clone(),
@@ -342,7 +342,7 @@ impl CompileEvaluation for ast::NullLiteral {
     }
 }
 
-impl CompileEvaluation for ast::StringLiteral {
+impl CompileEvaluation for ast::StringLiteral<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         let constant = Value::from_str(ctx.agent, self.value.as_str());
         ctx.exe
@@ -350,14 +350,14 @@ impl CompileEvaluation for ast::StringLiteral {
     }
 }
 
-impl CompileEvaluation for ast::IdentifierReference {
+impl CompileEvaluation for ast::IdentifierReference<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         ctx.exe
             .add_instruction_with_identifier(Instruction::ResolveBinding, &self.name);
     }
 }
 
-impl CompileEvaluation for ast::BindingIdentifier {
+impl CompileEvaluation for ast::BindingIdentifier<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         ctx.exe
             .add_instruction_with_identifier(Instruction::ResolveBinding, &self.name);
@@ -586,7 +586,7 @@ impl CompileEvaluation for ast::ParenthesizedExpression<'_> {
     }
 }
 
-impl CompileEvaluation for ast::ArrowExpression<'_> {
+impl CompileEvaluation for ast::ArrowFunctionExpression<'_> {
     fn compile(&self, _ctx: &mut CompileContext) {
         todo!()
     }
@@ -782,7 +782,7 @@ impl CompileEvaluation for ast::PrivateFieldExpression<'_> {
 impl CompileEvaluation for ast::Expression<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         match self {
-            ast::Expression::NumberLiteral(x) => x.compile(ctx),
+            ast::Expression::NumericLiteral(x) => x.compile(ctx),
             ast::Expression::BooleanLiteral(x) => x.compile(ctx),
             ast::Expression::Identifier(x) => x.compile(ctx),
             ast::Expression::BigintLiteral(x) => x.compile(ctx),
@@ -903,7 +903,7 @@ impl CompileEvaluation for ast::VariableDeclaration<'_> {
 
                     // 3. If IsAnonymousFunctionDefinition(Initializer) is true, then
                     match &init {
-                        ast::Expression::ArrowExpression(expr) => {
+                        ast::Expression::ArrowFunctionExpression(expr) => {
                             // Always anonymous
                             // a. Let value be ? NamedEvaluation of Initializer with argument bindingId.
                             let name_identifier = ctx.exe.add_identifier(&identifier.name);
@@ -977,7 +977,7 @@ impl CompileEvaluation for ast::VariableDeclaration<'_> {
                     ctx.exe.add_instruction(Instruction::PushReference);
                     // 3. If IsAnonymousFunctionDefinition(Initializer) is true, then
                     match &init {
-                        ast::Expression::ArrowExpression(expr) => {
+                        ast::Expression::ArrowFunctionExpression(expr) => {
                             // Always anonymous
                             // a. Let value be ? NamedEvaluation of Initializer with argument bindingId.
                             let name_identifier = ctx.exe.add_identifier(&identifier.name);

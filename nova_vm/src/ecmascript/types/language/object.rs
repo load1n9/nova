@@ -60,11 +60,11 @@ pub use property_storage::PropertyStorage;
 /// In Nova
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
-pub enum Object {
+pub enum Object<'a> {
     Object(ObjectIndex) = OBJECT_DISCRIMINANT,
     BoundFunction(BoundFunctionIndex) = BOUND_FUNCTION_DISCRIMINANT,
-    BuiltinFunction(BuiltinFunctionIndex) = BUILTIN_FUNCTION_DISCRIMINANT,
-    ECMAScriptFunction(ECMAScriptFunctionIndex) = ECMASCRIPT_FUNCTION_DISCRIMINANT,
+    BuiltinFunction(BuiltinFunctionIndex<'a>) = BUILTIN_FUNCTION_DISCRIMINANT,
+    ECMAScriptFunction(ECMAScriptFunctionIndex<'a>) = ECMASCRIPT_FUNCTION_DISCRIMINANT,
     BuiltinGeneratorFunction = BUILTIN_GENERATOR_FUNCTION_DISCRIMINANT,
     BuiltinConstructorFunction = BUILTIN_CONSTRUCTOR_FUNCTION_DISCRIMINANT,
     BuiltinPromiseResolveFunction = BUILTIN_PROMISE_RESOLVE_FUNCTION_DISCRIMINANT,
@@ -113,8 +113,8 @@ pub enum Object {
 #[derive(Debug, Clone, Copy)]
 pub struct OrdinaryObject(pub(crate) ObjectIndex);
 
-impl IntoObject for OrdinaryObject {
-    fn into_object(self) -> Object {
+impl<'a> IntoObject<'a> for OrdinaryObject {
+    fn into_object(self) -> Object<'a> {
         self.into()
     }
 }
@@ -125,7 +125,7 @@ impl IntoValue for OrdinaryObject {
     }
 }
 
-impl From<OrdinaryObject> for Object {
+impl From<OrdinaryObject> for Object<'_> {
     fn from(value: OrdinaryObject) -> Self {
         Self::Object(value.0)
     }
@@ -154,7 +154,7 @@ impl TryFrom<Value> for OrdinaryObject {
     }
 }
 
-impl TryFrom<Object> for OrdinaryObject {
+impl TryFrom<Object<'_>> for OrdinaryObject {
     type Error = ();
 
     fn try_from(value: Object) -> Result<Self, Self::Error> {

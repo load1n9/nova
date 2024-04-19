@@ -53,7 +53,7 @@ pub trait HostHooks: std::fmt::Debug {
 
 /// ### [9.7 Agents](https://tc39.es/ecma262/#sec-agents)
 #[derive(Debug)]
-pub struct Agent {
+pub struct Agent<'a> {
     pub(crate) heap: Heap,
     pub(crate) options: Options,
     // pre_allocated: PreAllocated,
@@ -61,10 +61,10 @@ pub struct Agent {
     pub(crate) symbol_id: usize,
     pub(crate) global_symbol_registry: HashMap<&'static str, Symbol>,
     pub(crate) host_hooks: &'static dyn HostHooks,
-    pub(crate) execution_context_stack: Vec<ExecutionContext>,
+    pub(crate) execution_context_stack: Vec<ExecutionContext<'a>>,
 }
 
-impl Agent {
+impl Agent<'_> {
     pub fn new(options: Options, host_hooks: &'static dyn HostHooks) -> Self {
         Self {
             heap: Heap::new(),

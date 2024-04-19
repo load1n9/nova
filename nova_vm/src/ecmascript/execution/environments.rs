@@ -54,7 +54,7 @@ use super::{Agent, JsResult};
 /// nested FunctionDeclarations then the Environment Records of each of the
 /// nested functions will have as their outer Environment Record the
 /// Environment Record of the current evaluation of the surrounding function.
-pub(super) type OuterEnv = Option<EnvironmentIndex>;
+pub(super) type OuterEnv<'a> = Option<EnvironmentIndex<'a>>;
 
 macro_rules! create_environment_index {
     ($name: ident, $index: ident) => {
@@ -64,9 +64,9 @@ macro_rules! create_environment_index {
         /// the zero index while still saving room for a [`None`] value when
         /// stored in an [`Option`].
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-        pub(crate) struct $index(NonZeroU32, PhantomData<$name>);
+        pub(crate) struct $index<'a>(NonZeroU32, PhantomData<$name<'a>>);
 
-        impl $index {
+        impl<'a> $index<'_> {
             /// Creates a new index from a u32.
             ///
             /// ## Panics
@@ -109,16 +109,16 @@ create_environment_index!(PrivateEnvironment, PrivateEnvironmentIndex);
 /// Environment Record.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-pub(crate) enum EnvironmentIndex {
+pub(crate) enum EnvironmentIndex<'a> {
     // Leave 0 for None option
-    Declarative(DeclarativeEnvironmentIndex) = 1,
-    Function(FunctionEnvironmentIndex),
-    Global(GlobalEnvironmentIndex),
-    Object(ObjectEnvironmentIndex),
+    Declarative(DeclarativeEnvironmentIndex<'a>) = 1,
+    Function(FunctionEnvironmentIndex<'a>),
+    Global(GlobalEnvironmentIndex<'a>),
+    Object(ObjectEnvironmentIndex<'a>),
 }
 
-impl EnvironmentIndex {
-    pub(crate) fn get_outer_env(self, agent: &Agent) -> OuterEnv {
+impl<'a> EnvironmentIndex<'_> {
+    pub(crate) fn get_outer_env(self, agent: &Agent) -> OuterEnv<'a> {
         match self {
             EnvironmentIndex::Declarative(index) => index.heap_data(agent).outer_env,
             EnvironmentIndex::Function(index) => {
@@ -332,14 +332,14 @@ impl EnvironmentIndex {
 }
 
 #[derive(Debug)]
-pub struct Environments {
-    pub(crate) declarative: Vec<Option<DeclarativeEnvironment>>,
-    pub(crate) function: Vec<Option<FunctionEnvironment>>,
-    pub(crate) global: Vec<Option<GlobalEnvironment>>,
-    pub(crate) object: Vec<Option<ObjectEnvironment>>,
+pub struct Environments<'a> {
+    pub(crate) declarative: Vec<Option<DeclarativeEnvironment<'a>>>,
+    pub(crate) function: Vec<Option<FunctionEnvironment<'a>>>,
+    pub(crate) global: Vec<Option<GlobalEnvironment<'a>>>,
+    pub(crate) object: Vec<Option<ObjectEnvironment<'a>>>,
 }
 
-impl Default for Environments {
+impl Default for Environments<'_> {
     fn default() -> Self {
         Self {
             declarative: Vec::with_capacity(256),
@@ -406,7 +406,7 @@ pub(crate) fn get_identifier_reference(
     }
 }
 
-impl Environments {
+impl Environments<'_> {
     pub(crate) fn push_declarative_environment(
         &mut self,
         env: DeclarativeEnvironment,

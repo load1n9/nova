@@ -2,32 +2,32 @@ use super::{Agent, EnvironmentIndex, PrivateEnvironmentIndex, RealmIdentifier};
 use crate::ecmascript::{scripts_and_modules::ScriptOrModule, types::*};
 
 // TODO: Remove this.
-pub(crate) type ECMAScriptCode = ECMAScriptCodeEvaluationState;
+pub(crate) type ECMAScriptCode<'a> = ECMAScriptCodeEvaluationState<'a>;
 
 /// ### [code evaluation state](https://tc39.es/ecma262/#table-state-components-for-all-execution-contexts)
 ///
 /// ECMAScript code execution contexts have the additional state components
 /// listed in Table 26.
 #[derive(Debug)]
-pub(crate) struct ECMAScriptCodeEvaluationState {
+pub(crate) struct ECMAScriptCodeEvaluationState<'a> {
     /// ### LexicalEnvironment
     ///
     /// Identifies the Environment Record used to resolve identifier references
     /// made by code within this execution context.
-    pub(crate) lexical_environment: EnvironmentIndex,
+    pub(crate) lexical_environment: EnvironmentIndex<'a>,
 
     /// ### VariableEnvironment
     ///
     /// Identifies the Environment Record that holds bindings created by
     /// VariableStatements within this execution context.
-    pub(crate) variable_environment: EnvironmentIndex,
+    pub(crate) variable_environment: EnvironmentIndex<'a>,
 
     /// ### PrivateEnvironment
     ///
     /// Identifies the PrivateEnvironment Record that holds Private Names
     /// created by ClassElements in the nearest containing class. null if there
     /// is no containing class.
-    pub(crate) private_environment: Option<PrivateEnvironmentIndex>,
+    pub(crate) private_environment: Option<PrivateEnvironmentIndex<'a>>,
 }
 
 /// ### [9.4 Execution Contexts](https://tc39.es/ecma262/#sec-execution-contexts)
@@ -39,12 +39,12 @@ pub(crate) struct ECMAScriptCodeEvaluationState {
 /// references to the running execution context in this specification denote
 /// the running execution context of the surrounding agent.
 #[derive(Debug)]
-pub(crate) struct ExecutionContext {
+pub(crate) struct ExecutionContext<'a> {
     /// ### code evaluation state
     ///
     /// Any state needed to perform, suspend, and resume evaluation of the code
     /// associated with this execution context.
-    pub ecmascript_code: Option<ECMAScriptCodeEvaluationState>,
+    pub ecmascript_code: Option<ECMAScriptCodeEvaluationState<'a>>,
 
     /// ### Function
     ///
@@ -58,7 +58,7 @@ pub(crate) struct ExecutionContext {
     ///
     /// The Realm Record from which associated code accesses ECMAScript
     /// resources.
-    pub realm: RealmIdentifier,
+    pub realm: RealmIdentifier<'a>,
 
     /// ### ScriptOrModule
     ///
@@ -69,7 +69,7 @@ pub(crate) struct ExecutionContext {
     pub script_or_module: Option<ScriptOrModule>,
 }
 
-impl ExecutionContext {
+impl ExecutionContext<'_> {
     pub(crate) fn suspend(&self) {
         // TODO: What does this actually mean in the end?
     }

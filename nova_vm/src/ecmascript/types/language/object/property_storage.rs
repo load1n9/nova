@@ -12,14 +12,14 @@ use crate::{
 use super::{Object, ObjectHeapData, PropertyKey};
 
 #[derive(Debug, Clone, Copy)]
-pub struct PropertyStorage(Object);
+pub struct PropertyStorage<'a>(Object<'a>);
 
-impl PropertyStorage {
+impl<'a> PropertyStorage<'_> {
     pub fn new(object: Object) -> Self {
         Self(object)
     }
 
-    fn into_object(self) -> Object {
+    fn into_object(self) -> Object<'a> {
         self.0
     }
 
@@ -142,14 +142,14 @@ impl PropertyStorage {
 
     pub fn remove(self, _agent: &mut Agent, _property_key: PropertyKey) {}
 
-    pub fn entries(self, _agent: &Agent) -> Entries {
+    pub fn entries(self, _agent: &Agent) -> Entries<'a> {
         todo!()
     }
 }
 
 #[derive(Debug)]
 pub struct Entries<'a> {
-    pub realm: Ref<'a, Realm>,
+    pub realm: Ref<'a, Realm<'a>>,
 }
 
 impl<'a> Entries<'a> {

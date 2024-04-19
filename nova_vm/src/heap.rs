@@ -51,11 +51,11 @@ use crate::ecmascript::{
 };
 
 #[derive(Debug)]
-pub struct Heap {
+pub struct Heap<'a> {
     pub modules: Vec<Option<Module>>,
-    pub realms: Vec<Option<Realm>>,
-    pub scripts: Vec<Option<Script>>,
-    pub environments: Environments,
+    pub realms: Vec<Option<Realm<'a>>>,
+    pub scripts: Vec<Option<Script<'a>>>,
+    pub environments: Environments<'a>,
     /// ElementsArrays is where all element arrays live;
     /// Element arrays are static arrays of Values plus
     /// a HashMap of possible property descriptors.
@@ -65,8 +65,8 @@ pub struct Heap {
     pub bigints: Vec<Option<BigIntHeapData>>,
     pub errors: Vec<Option<ErrorHeapData>>,
     pub bound_functions: Vec<Option<BoundFunctionHeapData>>,
-    pub builtin_functions: Vec<Option<BuiltinFunctionHeapData>>,
-    pub ecmascript_functions: Vec<Option<ECMAScriptFunctionHeapData>>,
+    pub builtin_functions: Vec<Option<BuiltinFunctionHeapData<'a>>>,
+    pub ecmascript_functions: Vec<Option<ECMAScriptFunctionHeapData<'a>>>,
     pub dates: Vec<Option<DateHeapData>>,
     pub globals: Vec<Value>,
     pub numbers: Vec<Option<NumberHeapData>>,
@@ -88,7 +88,7 @@ pub trait GetHeapData<'a, T, F: 'a> {
     fn get_mut(&'a mut self, id: BaseIndex<T>) -> &'a mut F;
 }
 
-impl CreateHeapData<f64, Number> for Heap {
+impl CreateHeapData<f64, Number> for Heap<'_> {
     fn create(&mut self, data: f64) -> Number {
         // NOTE: This function cannot currently be implemented
         // directly using `Number::from_f64` as it takes an Agent
@@ -106,7 +106,7 @@ impl CreateHeapData<f64, Number> for Heap {
 
 macro_rules! impl_heap_data {
     ($table: ident, $in: ty, $out: ty) => {
-        impl<'a> GetHeapData<'a, $in, $out> for Heap {
+        impl<'a> GetHeapData<'a, $in, $out> for Heap<'_> {
             fn get(&'a self, id: BaseIndex<$in>) -> &'a $out {
                 self.$table
                     .get(id.into_index())
@@ -133,7 +133,7 @@ macro_rules! impl_heap_data {
         }
     };
     ($table: ident, $in: ty, $out: ty, $accessor: ident) => {
-        impl<'a> GetHeapData<'a, $in, $out> for Heap {
+        impl<'a> GetHeapData<'a, $in, $out> for Heap<'_> {
             fn get(&'a self, id: BaseIndex<$in>) -> &'a $out {
                 &self
                     .$table
@@ -177,13 +177,13 @@ impl_heap_data!(
 );
 impl_heap_data!(
     builtin_functions,
-    BuiltinFunctionHeapData,
-    BuiltinFunctionHeapData
+    BuiltinFunctionHeapData<'a>,
+    BuiltinFunctionHeapData<'a>
 );
 impl_heap_data!(
     ecmascript_functions,
-    ECMAScriptFunctionHeapData,
-    ECMAScriptFunctionHeapData
+    ECMAScriptFunctionHeapData<'a>,
+    ECMAScriptFunctionHeapData<'a>
 );
 impl_heap_data!(numbers, NumberHeapData, f64, data);
 impl_heap_data!(objects, ObjectHeapData, ObjectHeapData);
@@ -196,7 +196,7 @@ impl_heap_data!(strings, StringHeapData, StringHeapData);
 impl_heap_data!(symbols, SymbolHeapData, SymbolHeapData);
 impl_heap_data!(bigints, BigIntHeapData, BigIntHeapData);
 
-impl CreateHeapData<&str, String> for Heap {
+impl CreateHeapData<&str, String> for Heap<'_> {
     fn create(&mut self, data: &str) -> String {
         if let Ok(value) = String::try_from(data) {
             value
@@ -207,7 +207,7 @@ impl CreateHeapData<&str, String> for Heap {
     }
 }
 
-impl CreateHeapData<std::string::String, String> for Heap {
+impl CreateHeapData<std::string::String, String> for Heap<'_> {
     fn create(&mut self, data: std::string::String) -> String {
         if let Ok(value) = String::try_from(data.as_str()) {
             value
@@ -218,57 +218,57 @@ impl CreateHeapData<std::string::String, String> for Heap {
     }
 }
 
-impl CreateHeapData<DateHeapData, Date> for Heap {
+impl CreateHeapData<DateHeapData, Date> for Heap<'_> {
     fn create(&mut self, data: DateHeapData) -> Date {
         self.dates.push(Some(data));
         Date::from(DateIndex::last(&self.dates))
     }
 }
 
-impl CreateHeapData<ErrorHeapData, Error> for Heap {
+impl CreateHeapData<ErrorHeapData, Error> for Heap<'_> {
     fn create(&mut self, data: ErrorHeapData) -> Error {
         self.errors.push(Some(data));
         Error::from(ErrorIndex::last(&self.errors))
     }
 }
 
-impl CreateHeapData<BoundFunctionHeapData, Function> for Heap {
+impl CreateHeapData<BoundFunctionHeapData, Function> for Heap<'_> {
     fn create(&mut self, data: BoundFunctionHeapData) -> Function {
         self.bound_functions.push(Some(data));
         Function::from(BoundFunctionIndex::last(&self.bound_functions))
     }
 }
 
-impl CreateHeapData<BuiltinFunctionHeapData, BuiltinFunction> for Heap {
+impl CreateHeapData<BuiltinFunctionHeapData<'_>, BuiltinFunction> for Heap<'_> {
     fn create(&mut self, data: BuiltinFunctionHeapData) -> BuiltinFunction {
         self.builtin_functions.push(Some(data));
         BuiltinFunctionIndex::last(&self.builtin_functions).into()
     }
 }
 
-impl CreateHeapData<ECMAScriptFunctionHeapData, Function> for Heap {
+impl CreateHeapData<ECMAScriptFunctionHeapData<'_>, Function> for Heap<'_> {
     fn create(&mut self, data: ECMAScriptFunctionHeapData) -> Function {
         self.ecmascript_functions.push(Some(data));
         Function::from(ECMAScriptFunctionIndex::last(&self.ecmascript_functions))
     }
 }
 
-impl CreateHeapData<ObjectHeapData, Object> for Heap {
+impl CreateHeapData<ObjectHeapData, Object> for Heap<'_> {
     fn create(&mut self, data: ObjectHeapData) -> Object {
         self.objects.push(Some(data));
         Object::Object(ObjectIndex::last(&self.objects))
     }
 }
 
-impl CreateHeapData<BigIntHeapData, BigInt> for Heap {
+impl CreateHeapData<BigIntHeapData, BigInt> for Heap<'_> {
     fn create(&mut self, data: BigIntHeapData) -> BigInt {
         self.bigints.push(Some(data));
         BigInt::BigInt(BigIntIndex::last(&self.bigints))
     }
 }
 
-impl Heap {
-    pub fn new() -> Heap {
+impl<'a> Heap<'_> {
+    pub fn new() -> Heap<'a> {
         let mut heap = Heap {
             modules: vec![],
             realms: Vec::with_capacity(1),
@@ -488,7 +488,7 @@ impl Heap {
     }
 }
 
-impl Default for Heap {
+impl Default for Heap<'_> {
     fn default() -> Self {
         Self::new()
     }

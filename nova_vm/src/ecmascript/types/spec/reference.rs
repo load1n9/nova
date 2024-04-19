@@ -16,18 +16,18 @@ use oxc_span::Atom;
 /// and other language features. For example, the left-hand operand of an
 /// assignment is expected to produce a Reference Record.
 #[derive(Debug)]
-pub struct Reference {
+pub struct Reference<'a> {
     /// ### \[\[Base]]
     ///
     /// The value or Environment Record which holds the binding. A \[\[Base]]
     /// of UNRESOLVABLE indicates that the binding could not be resolved.
-    pub(crate) base: Base,
+    pub(crate) base: Base<'a>,
 
     /// ### \[\[ReferencedName]]
     ///
     /// The name of the binding. Always a String if \[\[Base]] value is an
     /// Environment Record.
-    pub(crate) referenced_name: ReferencedName,
+    pub(crate) referenced_name: ReferencedName<'a>,
 
     /// ### \[\[Strict]]
     ///
@@ -267,15 +267,15 @@ pub(crate) fn get_this_value(reference: &Reference) -> Value {
 }
 
 #[derive(Debug)]
-pub(crate) enum Base {
+pub(crate) enum Base<'a> {
     Value(Value),
-    Environment(EnvironmentIndex),
+    Environment(EnvironmentIndex<'a>),
     Unresolvable,
 }
 
 #[derive(Debug)]
-pub enum ReferencedName {
-    String(Atom),
+pub enum ReferencedName<'a> {
+    String(Atom<'a>),
     Symbol(Symbol),
     // TODO: implement private names
     PrivateName,

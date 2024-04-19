@@ -16,7 +16,7 @@ pub(crate) trait LexicallyDeclaredNames<'a> {
     fn lexically_declared_names<F: FnMut(&BindingIdentifier)>(&self, f: &mut F);
 }
 
-pub(crate) fn script_lexically_declared_names(script: &Program<'_>) -> Vec<Atom> {
+pub(crate) fn script_lexically_declared_names<'a>(script: &Program<'_>) -> Vec<Atom<'a>> {
     let mut lexically_declared_names = vec![];
     // Script : [empty]
     // 1. Return a new empty List.
@@ -32,7 +32,7 @@ pub(crate) fn script_lexically_declared_names(script: &Program<'_>) -> Vec<Atom>
     lexically_declared_names
 }
 
-pub(crate) fn module_lexically_declared_names(script: &Program<'_>) -> Vec<Atom> {
+pub(crate) fn module_lexically_declared_names<'a>(script: &Program<'_>) -> Vec<Atom<'a>> {
     let mut lexically_declared_names = vec![];
     // NOTE 2
     // The LexicallyDeclaredNames of a Module includes the names of all of its imported bindings.
@@ -52,7 +52,7 @@ pub(crate) fn module_lexically_declared_names(script: &Program<'_>) -> Vec<Atom>
     lexically_declared_names
 }
 
-pub(crate) fn function_body_lexically_declared_names(body: &FunctionBody<'_>) -> Vec<Atom> {
+pub(crate) fn function_body_lexically_declared_names<'a>(body: &FunctionBody<'_>) -> Vec<Atom<'a>> {
     let mut lexically_declared_names = vec![];
     // FunctionStatementList : [empty]
     // 1. Return a new empty List.
@@ -452,7 +452,7 @@ pub(crate) trait VarDeclaredNames<'a> {
     fn var_declared_names<F: FnMut(&BindingIdentifier)>(&self, f: &mut F);
 }
 
-pub(crate) fn script_var_declared_names(script: &Program<'_>) -> Vec<Atom> {
+pub(crate) fn script_var_declared_names<'a>(script: &Program<'_>) -> Vec<Atom<'a>> {
     let mut var_declared_names = vec![];
     // Script : [empty]
     // 1. Return a new empty List.
@@ -466,7 +466,7 @@ pub(crate) fn script_var_declared_names(script: &Program<'_>) -> Vec<Atom> {
     var_declared_names
 }
 
-pub(crate) fn module_var_declared_names(module: &Program<'_>) -> Vec<Atom> {
+pub(crate) fn module_var_declared_names<'a>(module: &Program<'_>) -> Vec<Atom<'a>> {
     let mut var_declared_names = vec![];
     // ModuleItemList : ModuleItemList ModuleItem
     // 1. Let names1 be VarDeclaredNames of ModuleItemList.
@@ -478,7 +478,7 @@ pub(crate) fn module_var_declared_names(module: &Program<'_>) -> Vec<Atom> {
     var_declared_names
 }
 
-pub(crate) fn function_body_var_declared_names(function: &FunctionBody<'_>) -> Vec<Atom> {
+pub(crate) fn function_body_var_declared_names<'a>(function: &FunctionBody<'_>) -> Vec<Atom<'a>> {
     let mut var_declared_names = vec![];
     // NOTE
     // This section is extended by Annex B.3.5.
@@ -495,7 +495,7 @@ pub(crate) fn function_body_var_declared_names(function: &FunctionBody<'_>) -> V
     var_declared_names
 }
 
-pub(crate) fn class_static_block_var_declared_names(static_block: &StaticBlock<'_>) -> Vec<Atom> {
+pub(crate) fn class_static_block_var_declared_names<'a>(static_block: &StaticBlock<'_>) -> Vec<Atom<'a>> {
     let mut var_declared_names = vec![];
     // ClassStaticBlockStatementList : [empty]
     // 1. Return a new empty List.
@@ -509,7 +509,7 @@ pub(crate) fn class_static_block_var_declared_names(static_block: &StaticBlock<'
     var_declared_names
 }
 
-pub(crate) fn arrow_function_var_declared_names(arrow_function: &FunctionBody<'_>) -> Vec<Atom> {
+pub(crate) fn arrow_function_var_declared_names<'a>(arrow_function: &FunctionBody<'_>) -> Vec<Atom<'a>> {
     debug_assert!(arrow_function.statements.len() <= 1);
     if let Some(body) = arrow_function.statements.first() {
         debug_assert!(matches!(body, Statement::ExpressionStatement(_)));

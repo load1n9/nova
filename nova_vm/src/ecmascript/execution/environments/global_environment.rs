@@ -23,14 +23,14 @@ use super::{
 /// built-in globals (clause 19), properties of the global object, and for all
 /// top-level declarations (8.2.9, 8.2.11) that occur within a Script.
 #[derive(Debug, Clone)]
-pub struct GlobalEnvironment {
+pub struct GlobalEnvironment<'a> {
     /// ### \[\[ObjectRecord\]\]
     ///
     /// Binding object is the global object. It contains global built-in
     /// bindings as well as FunctionDeclaration, GeneratorDeclaration,
     /// AsyncFunctionDeclaration, AsyncGeneratorDeclaration, and
     /// VariableDeclaration bindings in global code for the associated realm.
-    pub(crate) object_record: ObjectEnvironmentIndex,
+    pub(crate) object_record: ObjectEnvironmentIndex<'a>,
 
     /// ### \[\[GlobalThisValue\]\]
     ///
@@ -44,7 +44,7 @@ pub struct GlobalEnvironment {
     /// associated realm code except for FunctionDeclaration,
     /// GeneratorDeclaration, AsyncFunctionDeclaration,
     /// AsyncGeneratorDeclaration, and VariableDeclaration bindings.
-    pub(crate) declarative_record: DeclarativeEnvironmentIndex,
+    pub(crate) declarative_record: DeclarativeEnvironmentIndex<'a>,
 
     /// ### \[\[VarNames\]\]
     ///
@@ -53,16 +53,16 @@ pub struct GlobalEnvironment {
     /// VariableDeclaration declarations in global code for the associated
     /// realm.
     // TODO: Use the Heap to set this.
-    var_names: HashSet<Atom>,
+    var_names: HashSet<Atom<'a>>,
 }
 
-impl GlobalEnvironment {
+impl<'a> GlobalEnvironment<'_> {
     /// ### [9.1.2.5 NewGlobalEnvironment ( G, thisValue )](https://tc39.es/ecma262/#sec-newglobalenvironment)
     ///
     /// The abstract operation NewGlobalEnvironment takes arguments G (an
     /// Object) and thisValue (an Object) and returns a Global Environment
     /// Record.
-    pub(crate) fn new(agent: &mut Agent, global: Object, this_value: Object) -> GlobalEnvironment {
+    pub(crate) fn new(agent: &mut Agent, global: Object, this_value: Object) -> GlobalEnvironment<'a> {
         // 1. Let objRec be NewObjectEnvironment(G, false, null).
         let obj_rec = ObjectEnvironment::new(global, false, None);
         agent.heap.environments.object.push(Some(obj_rec));
@@ -94,12 +94,12 @@ impl GlobalEnvironment {
     }
 }
 
-impl GlobalEnvironmentIndex {
-    fn heap_data(self, agent: &Agent) -> &GlobalEnvironment {
+impl<'a> GlobalEnvironmentIndex<'_> {
+    fn heap_data(self, agent: &Agent) -> &'a GlobalEnvironment<'a> {
         agent.heap.environments.get_global_environment(self)
     }
 
-    fn heap_data_mut(self, agent: &mut Agent) -> &mut GlobalEnvironment {
+    fn heap_data_mut(self, agent: &mut Agent) -> &'a mut GlobalEnvironment<'a> {
         agent.heap.environments.get_global_environment_mut(self)
     }
 

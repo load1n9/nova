@@ -37,18 +37,18 @@ use super::{Executable, Instruction, InstructionIter};
 /// - This is inspired by and/or copied from Kiesel engine:
 ///   Copyright (c) 2023-2024 Linus Groh
 #[derive(Debug)]
-pub(crate) struct Vm {
+pub(crate) struct Vm<'a> {
     /// Instruction pointer.
     ip: usize,
     stack: Vec<Value>,
-    reference_stack: Vec<Reference>,
+    reference_stack: Vec<Reference<'a>>,
     exception_jump_target_stack: Vec<usize>,
     result: Option<Value>,
     exception: Option<Value>,
-    reference: Option<Reference>,
+    reference: Option<Reference<'a>>,
 }
 
-impl Vm {
+impl Vm<'_> {
     fn new() -> Self {
         Self {
             ip: 0,
@@ -332,7 +332,7 @@ impl Vm {
                             }
                             PropertyKey::String(s) => {
                                 let s = agent.heap.get(s);
-                                ReferencedName::String(Atom::from(s.as_str().to_string()))
+                                ReferencedName::String(Atom::<'_>::from(s.as_str()))
                             }
                             PropertyKey::Symbol(s) => ReferencedName::Symbol(s.into()),
                             _ => todo!("Index properties in ReferencedName"),

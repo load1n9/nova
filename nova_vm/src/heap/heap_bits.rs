@@ -68,14 +68,14 @@ pub struct HeapBits {
 }
 
 #[derive(Debug)]
-pub(crate) struct WorkQueues {
+pub(crate) struct WorkQueues<'a> {
     pub modules: Vec<ModuleIdentifier>,
-    pub scripts: Vec<ScriptIdentifier>,
-    pub realms: Vec<RealmIdentifier>,
-    pub declarative_environments: Vec<DeclarativeEnvironmentIndex>,
-    pub function_environments: Vec<FunctionEnvironmentIndex>,
-    pub global_environments: Vec<GlobalEnvironmentIndex>,
-    pub object_environments: Vec<ObjectEnvironmentIndex>,
+    pub scripts: Vec<ScriptIdentifier<'a>>,
+    pub realms: Vec<RealmIdentifier<'a>>,
+    pub declarative_environments: Vec<DeclarativeEnvironmentIndex<'a>>,
+    pub function_environments: Vec<FunctionEnvironmentIndex<'a>>,
+    pub global_environments: Vec<GlobalEnvironmentIndex<'a>>,
+    pub object_environments: Vec<ObjectEnvironmentIndex<'a>>,
     pub e_2_4: Vec<(ElementIndex, u32)>,
     pub e_2_6: Vec<(ElementIndex, u32)>,
     pub e_2_8: Vec<(ElementIndex, u32)>,
@@ -89,8 +89,8 @@ pub(crate) struct WorkQueues {
     pub bigints: Vec<BigIntIndex>,
     pub errors: Vec<ErrorIndex>,
     pub bound_functions: Vec<BoundFunctionIndex>,
-    pub builtin_functions: Vec<BuiltinFunctionIndex>,
-    pub ecmascript_functions: Vec<ECMAScriptFunctionIndex>,
+    pub builtin_functions: Vec<BuiltinFunctionIndex<'a>>,
+    pub ecmascript_functions: Vec<ECMAScriptFunctionIndex<'a>>,
     pub dates: Vec<DateIndex>,
     pub numbers: Vec<NumberIndex>,
     pub objects: Vec<ObjectIndex>,
@@ -165,7 +165,7 @@ impl HeapBits {
     }
 }
 
-impl WorkQueues {
+impl WorkQueues<'_> {
     pub fn new(heap: &Heap) -> Self {
         Self {
             modules: Vec::with_capacity(heap.modules.len() / 4),
@@ -749,7 +749,7 @@ impl HeapMarkAndSweep<()> for BoundFunctionIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for BuiltinFunctionIndex {
+impl HeapMarkAndSweep<()> for BuiltinFunctionIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.builtin_functions.push(*self);
     }
@@ -776,7 +776,7 @@ impl HeapMarkAndSweep<()> for DateIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for ECMAScriptFunctionIndex {
+impl HeapMarkAndSweep<()> for ECMAScriptFunctionIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.ecmascript_functions.push(*self);
     }
@@ -1244,7 +1244,7 @@ impl HeapMarkAndSweep<()> for BoundFunctionHeapData {
     }
 }
 
-impl HeapMarkAndSweep<()> for BuiltinFunctionHeapData {
+impl HeapMarkAndSweep<()> for BuiltinFunctionHeapData<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.initial_name.mark_values(queues, ());
         self.object_index.mark_values(queues, ());
@@ -1256,7 +1256,7 @@ impl HeapMarkAndSweep<()> for BuiltinFunctionHeapData {
     }
 }
 
-impl HeapMarkAndSweep<()> for ECMAScriptFunctionHeapData {
+impl HeapMarkAndSweep<()> for ECMAScriptFunctionHeapData<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.name.mark_values(queues, ());
         self.object_index.mark_values(queues, ());
@@ -1364,7 +1364,7 @@ impl HeapMarkAndSweep<()> for Module {
     fn sweep_values(&mut self, _compactions: &CompactionLists, _data: impl Borrow<()>) {}
 }
 
-impl HeapMarkAndSweep<()> for RealmIdentifier {
+impl HeapMarkAndSweep<()> for RealmIdentifier<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.realms.push(*self);
     }
@@ -1375,7 +1375,7 @@ impl HeapMarkAndSweep<()> for RealmIdentifier {
     }
 }
 
-impl HeapMarkAndSweep<()> for Realm {
+impl HeapMarkAndSweep<()> for Realm<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.intrinsics().mark_values(queues, ());
         self.global_env.mark_values(queues, ());
@@ -1532,7 +1532,7 @@ impl HeapMarkAndSweep<()> for Intrinsics {
     }
 }
 
-impl HeapMarkAndSweep<()> for ScriptIdentifier {
+impl HeapMarkAndSweep<()> for ScriptIdentifier<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.scripts.push(*self);
     }
@@ -1543,7 +1543,7 @@ impl HeapMarkAndSweep<()> for ScriptIdentifier {
     }
 }
 
-impl HeapMarkAndSweep<()> for Script {
+impl HeapMarkAndSweep<()> for Script<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, data: impl BorrowMut<()>) {
         self.realm.mark_values(queues, data);
     }
@@ -1553,7 +1553,7 @@ impl HeapMarkAndSweep<()> for Script {
     }
 }
 
-impl HeapMarkAndSweep<()> for ScriptOrModule {
+impl HeapMarkAndSweep<()> for ScriptOrModule<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         match self {
             ScriptOrModule::Script(idx) => idx.mark_values(queues, ()),
@@ -1569,7 +1569,7 @@ impl HeapMarkAndSweep<()> for ScriptOrModule {
     }
 }
 
-impl HeapMarkAndSweep<()> for DeclarativeEnvironmentIndex {
+impl HeapMarkAndSweep<()> for DeclarativeEnvironmentIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.declarative_environments.push(*self);
     }
@@ -1585,7 +1585,7 @@ impl HeapMarkAndSweep<()> for DeclarativeEnvironmentIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for FunctionEnvironmentIndex {
+impl HeapMarkAndSweep<()> for FunctionEnvironmentIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.function_environments.push(*self);
     }
@@ -1601,7 +1601,7 @@ impl HeapMarkAndSweep<()> for FunctionEnvironmentIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for GlobalEnvironmentIndex {
+impl HeapMarkAndSweep<()> for GlobalEnvironmentIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.global_environments.push(*self);
     }
@@ -1617,7 +1617,7 @@ impl HeapMarkAndSweep<()> for GlobalEnvironmentIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for ObjectEnvironmentIndex {
+impl HeapMarkAndSweep<()> for ObjectEnvironmentIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         queues.object_environments.push(*self);
     }
@@ -1633,7 +1633,7 @@ impl HeapMarkAndSweep<()> for ObjectEnvironmentIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for PrivateEnvironmentIndex {
+impl HeapMarkAndSweep<()> for PrivateEnvironmentIndex<'_> {
     fn mark_values(&self, _queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         todo!()
     }
@@ -1643,7 +1643,7 @@ impl HeapMarkAndSweep<()> for PrivateEnvironmentIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for EnvironmentIndex {
+impl HeapMarkAndSweep<()> for EnvironmentIndex<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         match self {
             EnvironmentIndex::Declarative(idx) => idx.mark_values(queues, ()),
@@ -1663,7 +1663,7 @@ impl HeapMarkAndSweep<()> for EnvironmentIndex {
     }
 }
 
-impl HeapMarkAndSweep<()> for DeclarativeEnvironment {
+impl HeapMarkAndSweep<()> for DeclarativeEnvironment<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.outer_env.mark_values(queues, ());
         for binding in self.bindings.values() {
@@ -1679,7 +1679,7 @@ impl HeapMarkAndSweep<()> for DeclarativeEnvironment {
     }
 }
 
-impl HeapMarkAndSweep<()> for FunctionEnvironment {
+impl HeapMarkAndSweep<()> for FunctionEnvironment<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.declarative_environment.mark_values(queues, ());
         self.function_object.mark_values(queues, ());
@@ -1695,7 +1695,7 @@ impl HeapMarkAndSweep<()> for FunctionEnvironment {
     }
 }
 
-impl HeapMarkAndSweep<()> for GlobalEnvironment {
+impl HeapMarkAndSweep<()> for GlobalEnvironment<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.declarative_record.mark_values(queues, ());
         self.global_this_value.mark_values(queues, ());
@@ -1709,7 +1709,7 @@ impl HeapMarkAndSweep<()> for GlobalEnvironment {
     }
 }
 
-impl HeapMarkAndSweep<()> for ObjectEnvironment {
+impl HeapMarkAndSweep<()> for ObjectEnvironment<'_> {
     fn mark_values(&self, queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         self.outer_env.mark_values(queues, ());
         self.binding_object.mark_values(queues, ());
@@ -1721,7 +1721,7 @@ impl HeapMarkAndSweep<()> for ObjectEnvironment {
     }
 }
 
-impl HeapMarkAndSweep<()> for PrivateEnvironment {
+impl HeapMarkAndSweep<()> for PrivateEnvironment<'_> {
     fn mark_values(&self, _queues: &mut WorkQueues, _data: impl BorrowMut<()>) {
         todo!()
     }
