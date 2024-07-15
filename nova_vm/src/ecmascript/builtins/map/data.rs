@@ -18,8 +18,8 @@ pub struct MapHeapData {
     // ValueHash is created using a Value.hash(agent) function and connects to
     // an index; the index points to a key and value in parallel vector / Vec2.
     // Note that empty slots are deleted values in the ParallelVec.
-    pub(crate) keys: Vec<Option<Value>>,
-    pub(crate) values: Vec<Option<Value>>,
+    pub(crate) keys: alloc::vec::Vec<Option<Value>>,
+    pub(crate) values: alloc::vec::Vec<Option<Value>>,
     // TODO: When an non-terminal (start or end) iterator exists for the Map,
     // the items in the map cannot be compacted.
     // pub(crate) observed: bool;

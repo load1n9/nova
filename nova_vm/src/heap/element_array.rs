@@ -12,11 +12,10 @@ use crate::ecmascript::{
     execution::Agent,
     types::{Function, PropertyDescriptor, PropertyKey, Value},
 };
+use alloc::vec::Vec;
+use core::ops::{Index, IndexMut};
 use core::panic;
-use std::{
-    collections::HashMap,
-    ops::{Index, IndexMut},
-};
+use hashbrown::HashMap;
 
 #[derive(Default, Debug, Clone, Copy)]
 pub enum ElementArrayKey {
@@ -186,7 +185,7 @@ impl ElementsVector {
             let usize_index = elements_index.into_index();
             let len = self.len() as usize;
             match self.cap {
-                ElementArrayKey::Empty => (vec![], None),
+                ElementArrayKey::Empty => (alloc::vec![], None),
                 ElementArrayKey::E4 => {
                     let descriptors = elements.e2pow4.descriptors.get(&elements_index).cloned();
                     let elements = elements
@@ -384,11 +383,11 @@ impl ElementsVector {
             let mut new_map = HashMap::new();
             for (k, v) in descriptor_map.drain() {
                 match usize::try_from(k).unwrap().cmp(&index) {
-                    std::cmp::Ordering::Less => {
+                    core::cmp::Ordering::Less => {
                         new_map.insert(k, v);
                     }
-                    std::cmp::Ordering::Equal => {}
-                    std::cmp::Ordering::Greater => {
+                    core::cmp::Ordering::Equal => {}
+                    core::cmp::Ordering::Greater => {
                         new_map.insert(k - 1, v);
                     }
                 }
@@ -1171,8 +1170,8 @@ impl ElementArrays {
         descriptors: Option<HashMap<u32, ElementDescriptor>>,
     ) -> ElementIndex {
         debug_assert_eq!(
-            std::mem::size_of::<Option<[Option<Value>; 1]>>(),
-            std::mem::size_of::<[Option<Value>; 1]>()
+            core::mem::size_of::<Option<[Option<Value>; 1]>>(),
+            core::mem::size_of::<[Option<Value>; 1]>()
         );
         match key {
             ElementArrayKey::Empty => ElementIndex::from_u32_index(0),
@@ -1189,11 +1188,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1218,11 +1217,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1247,11 +1246,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1276,11 +1275,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1305,11 +1304,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1334,11 +1333,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1363,11 +1362,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }
@@ -1392,11 +1391,11 @@ impl ElementArrays {
                 // Both are property aligned and do not alias.
                 unsafe {
                     debug_assert_eq!(
-                        std::mem::size_of::<Option<[Option<Value>; N]>>(),
-                        std::mem::size_of::<[Option<Value>; N]>()
+                        core::mem::size_of::<Option<[Option<Value>; N]>>(),
+                        core::mem::size_of::<[Option<Value>; N]>()
                     );
-                    let element_ptr: *mut Option<Value> = std::mem::transmute(last.as_mut_ptr());
-                    std::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
+                    let element_ptr: *mut Option<Value> = core::mem::transmute(last.as_mut_ptr());
+                    core::ptr::copy_nonoverlapping(vector.as_ptr(), element_ptr, length);
                     for index in length..N {
                         element_ptr.add(index).write(None);
                     }

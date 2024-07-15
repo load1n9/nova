@@ -2,7 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use alloc::vec;
+use alloc::vec::Vec;
+use core::ops::{Index, IndexMut};
 
 use oxc_ast::{
     ast::{FormalParameters, FunctionBody},
@@ -453,7 +455,7 @@ impl InternalMethods for ECMAScriptFunction {
             .unwrap()
             .lexical_environment;
         // 3. Assert: calleeContext is now the running execution context.
-        // assert!(std::ptr::eq(agent.running_execution_context(), callee_context));
+        // assert!(core::ptr::eq(agent.running_execution_context(), callee_context));
         // 4. If F.[[IsClassConstructor]] is true, then
         if agent[self]
             .ecmascript_function
@@ -514,7 +516,7 @@ impl InternalMethods for ECMAScriptFunction {
             .unwrap()
             .lexical_environment;
         // 5. Assert: calleeContext is now the running execution context.
-        // assert!(std::ptr::eq(agent.running_execution_context(), callee_context));
+        // assert!(core::ptr::eq(agent.running_execution_context(), callee_context));
 
         // 6. If kind is base, then
         if is_base {
@@ -755,7 +757,7 @@ pub(crate) fn ordinary_function_create<'agent, 'program>(
         // alive until this ECMAScriptFunction gets dropped, hence the 'static
         // lifetime here is justified.
         formal_parameters: unsafe {
-            std::mem::transmute::<
+            core::mem::transmute::<
                 &'agent FormalParameters<'program>,
                 &'static FormalParameters<'static>,
             >(params.parameters_list)
@@ -763,7 +765,7 @@ pub(crate) fn ordinary_function_create<'agent, 'program>(
         // 6. Set F.[[ECMAScriptCode]] to Body.
         // SAFETY: Same as above: Self-referential reference to ScriptOrModule.
         ecmascript_code: unsafe {
-            std::mem::transmute::<&'agent FunctionBody<'program>, &FunctionBody<'static>>(
+            core::mem::transmute::<&'agent FunctionBody<'program>, &FunctionBody<'static>>(
                 params.body,
             )
         },
@@ -927,7 +929,7 @@ pub(crate) fn set_function_name(
                 .descriptor
                 .map_or(String::EMPTY_STRING, |descriptor| {
                     let descriptor = descriptor.as_str(agent);
-                    String::from_string(agent, format!("[{}]", descriptor))
+                    String::from_string(agent, alloc::format!("[{}]", descriptor))
                 })
         }
         // TODO: Private Name

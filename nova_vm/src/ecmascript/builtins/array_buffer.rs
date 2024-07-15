@@ -20,8 +20,9 @@ use crate::{
     },
 };
 
+use alloc::vec::Vec;
+use core::ops::{Index, IndexMut};
 pub use data::ArrayBufferHeapData;
-use std::ops::{Index, IndexMut};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(transparent)]

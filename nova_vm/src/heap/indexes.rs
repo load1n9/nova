@@ -4,7 +4,7 @@
 
 use crate::ecmascript::{
     builtins::{
-        data_view::data::DataViewHeapData, date::data::DateHeapData,
+        data_view::data::DataViewHeapData, date::{data::DateHeapData, Date},
         embedder_object::data::EmbedderObjectHeapData, error::ErrorHeapData,
         finalization_registry::data::FinalizationRegistryHeapData, map::data::MapHeapData,
         primitive_objects::PrimitiveObjectHeapData, promise::data::PromiseHeapData,
@@ -20,12 +20,13 @@ use crate::ecmascript::{
     },
 };
 
+use alloc::vec::Vec;
 use core::fmt::Debug;
-use std::{
+use core::{
     hash::{Hash, Hasher},
     ops::{Index, IndexMut},
 };
-use std::{marker::PhantomData, mem::size_of, num::NonZeroU32};
+use core::{marker::PhantomData, mem::size_of, num::NonZeroU32};
 
 /// A struct containing a non-zero index into an array or
 /// vector of `T`s. Due to the non-zero value, the offset
@@ -40,7 +41,7 @@ const _OPTION_INDEX_SIZE_IS_U32: () =
     assert!(size_of::<Option<BaseIndex<()>>>() == size_of::<u32>());
 
 impl<T: ?Sized> Debug for BaseIndex<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         assert!(self.0.get() != 0);
         (&self.0.get() - 1).fmt(f)
     }
@@ -63,13 +64,13 @@ impl<T: ?Sized> PartialEq for BaseIndex<T> {
 impl<T: ?Sized> Eq for BaseIndex<T> {}
 
 impl<T: ?Sized> PartialOrd for BaseIndex<T> {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl<T: ?Sized> Ord for BaseIndex<T> {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.0.cmp(&other.0)
     }
 }
@@ -148,7 +149,7 @@ pub type BigIntIndex = BaseIndex<BigIntHeapData>;
 pub type BoundFunctionIndex = BaseIndex<BoundFunctionHeapData>;
 pub type BuiltinFunctionIndex = BaseIndex<BuiltinFunctionHeapData>;
 pub type DataViewIndex = BaseIndex<DataViewHeapData>;
-pub type DateIndex = BaseIndex<DateHeapData>;
+pub type DateIndex = BaseIndex<DateHeapData<Date>>;
 pub type ECMAScriptFunctionIndex = BaseIndex<ECMAScriptFunctionHeapData>;
 pub type ElementIndex = BaseIndex<[Option<Value>]>;
 pub type EmbedderObjectIndex = BaseIndex<EmbedderObjectHeapData>;

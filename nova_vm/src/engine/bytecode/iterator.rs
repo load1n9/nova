@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::VecDeque;
+use alloc::collections::VecDeque;
 
 use crate::ecmascript::{
     execution::{Agent, JsResult},
@@ -18,7 +18,7 @@ pub(super) enum VmIterator {
 pub(super) struct ObjectPropertiesIterator {
     object: Object,
     object_was_visited: bool,
-    visited_keys: Vec<PropertyKey>,
+    visited_keys: alloc::vec::Vec<PropertyKey>,
     remaining_keys: VecDeque<PropertyKey>,
 }
 

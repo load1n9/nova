@@ -4,7 +4,8 @@
 
 pub(crate) mod data;
 
-use std::ops::{Index, IndexMut};
+use alloc::vec::Vec;
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -107,7 +108,7 @@ impl InternalSlots for Date {
 impl InternalMethods for Date {}
 
 impl Index<Date> for Agent {
-    type Output = DateHeapData;
+    type Output = DateHeapData<Date>;
 
     fn index(&self, index: Date) -> &Self::Output {
         &self.heap.dates[index]
@@ -120,8 +121,8 @@ impl IndexMut<Date> for Agent {
     }
 }
 
-impl Index<Date> for Vec<Option<DateHeapData>> {
-    type Output = DateHeapData;
+impl Index<Date> for Vec<Option<DateHeapData<Date>>> {
+    type Output = DateHeapData<Date>;
 
     fn index(&self, index: Date) -> &Self::Output {
         self.get(index.get_index())
@@ -131,7 +132,7 @@ impl Index<Date> for Vec<Option<DateHeapData>> {
     }
 }
 
-impl IndexMut<Date> for Vec<Option<DateHeapData>> {
+impl IndexMut<Date> for Vec<Option<DateHeapData<Date>>> {
     fn index_mut(&mut self, index: Date) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("Date out of bounds")
@@ -152,8 +153,8 @@ impl HeapMarkAndSweep for Date {
     }
 }
 
-impl CreateHeapData<DateHeapData, Date> for Heap {
-    fn create(&mut self, data: DateHeapData) -> Date {
+impl CreateHeapData<DateHeapData<Date>, Date> for Heap {
+    fn create(&mut self, data: DateHeapData<Date>) -> Date {
         self.dates.push(Some(data));
         Date(DateIndex::last(&self.dates))
     }

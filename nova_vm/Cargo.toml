@@ -13,9 +13,12 @@ oxc_diagnostics = { workspace = true }
 oxc_parser = { workspace = true }
 oxc_span = { workspace = true }
 oxc_syntax = { workspace = true }
+hashbrown = "0.14.5"
+print-no-std = "0.1.0"
 ryu-js = { workspace = true, default-features = false }
 small_string = { path = "../small_string" }
 wtf8 = { workspace = true }
 
 [build-dependencies]
 small_string = { path = "../small_string" }
+

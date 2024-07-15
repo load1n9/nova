@@ -21,7 +21,8 @@ use crate::{
     heap::CreateHeapData,
     Heap,
 };
-use std::collections::HashMap;
+use alloc::vec::Vec;
+use hashbrown::HashMap;
 
 #[derive(Debug, Default)]
 pub struct Options {
@@ -29,7 +30,7 @@ pub struct Options {
     pub print_internals: bool,
 }
 
-pub type JsResult<T> = std::result::Result<T, JsError>;
+pub type JsResult<T> = core::result::Result<T, JsError>;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct JsError(Value);
@@ -98,7 +99,7 @@ pub enum PromiseRejectionTrackerOperation {
     Handle,
 }
 
-pub trait HostHooks: std::fmt::Debug {
+pub trait HostHooks: core::fmt::Debug {
     /// ### [19.2.1.2 HostEnsureCanCompileStrings ( calleeRealm )](https://tc39.es/ecma262/#sec-hostensurecancompilestrings)
     fn host_ensure_can_compile_strings(&self, _callee_realm: &mut Realm) -> JsResult<()> {
         // The default implementation of HostEnsureCanCompileStrings is to return NormalCompletion(unused).

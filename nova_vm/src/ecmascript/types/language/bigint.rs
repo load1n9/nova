@@ -4,7 +4,7 @@
 
 mod data;
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use super::{
     into_numeric::IntoNumeric,
@@ -19,7 +19,7 @@ use crate::{
     },
     SmallInteger,
 };
-
+use alloc::string::ToString;
 pub use data::BigIntHeapData;
 
 impl IntoValue for BigInt {
@@ -77,7 +77,7 @@ impl SmallBigInt {
     }
 }
 
-impl std::ops::Not for SmallBigInt {
+impl core::ops::Not for SmallBigInt {
     type Output = Self;
     #[inline(always)]
     fn not(self) -> Self::Output {
@@ -85,7 +85,7 @@ impl std::ops::Not for SmallBigInt {
     }
 }
 
-impl std::ops::Neg for SmallBigInt {
+impl core::ops::Neg for SmallBigInt {
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self::Output {
@@ -401,7 +401,7 @@ impl IndexMut<HeapBigInt> for Agent {
     }
 }
 
-impl Index<HeapBigInt> for Vec<Option<BigIntHeapData>> {
+impl Index<HeapBigInt> for alloc::vec::Vec<Option<BigIntHeapData>> {
     type Output = BigIntHeapData;
 
     fn index(&self, index: HeapBigInt) -> &Self::Output {
@@ -412,7 +412,7 @@ impl Index<HeapBigInt> for Vec<Option<BigIntHeapData>> {
     }
 }
 
-impl IndexMut<HeapBigInt> for Vec<Option<BigIntHeapData>> {
+impl IndexMut<HeapBigInt> for alloc::vec::Vec<Option<BigIntHeapData>> {
     fn index_mut(&mut self, index: HeapBigInt) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("BigInt out of bounds")

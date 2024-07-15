@@ -24,7 +24,8 @@
 //! functions will have as their outer Environment Record the Environment Record
 //! of the current evaluation of the surrounding function.
 
-use std::{marker::PhantomData, num::NonZeroU32};
+use core::{marker::PhantomData, num::NonZeroU32};
+use alloc::vec::Vec;
 
 mod declarative_environment;
 mod function_environment;
@@ -98,7 +99,7 @@ macro_rules! create_environment_index {
             }
         }
 
-        impl std::ops::Index<$index> for Agent {
+        impl core::ops::Index<$index> for Agent {
             type Output = $name;
 
             fn index(&self, index: $index) -> &Self::Output {
@@ -106,13 +107,13 @@ macro_rules! create_environment_index {
             }
         }
 
-        impl std::ops::IndexMut<$index> for Agent {
+        impl core::ops::IndexMut<$index> for Agent {
             fn index_mut(&mut self, index: $index) -> &mut Self::Output {
                 &mut self.heap.environments.$entry[index]
             }
         }
 
-        impl std::ops::Index<$index> for Vec<Option<$name>> {
+        impl core::ops::Index<$index> for Vec<Option<$name>> {
             type Output = $name;
 
             fn index(&self, index: $index) -> &Self::Output {
@@ -123,7 +124,7 @@ macro_rules! create_environment_index {
             }
         }
 
-        impl std::ops::IndexMut<$index> for Vec<Option<$name>> {
+        impl core::ops::IndexMut<$index> for Vec<Option<$name>> {
             fn index_mut(&mut self, index: $index) -> &mut Self::Output {
                 self.get_mut(index.into_index())
                     .expect("Environment out of bounds")

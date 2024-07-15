@@ -4,8 +4,6 @@
 
 mod data;
 
-use std::ops::{Index, IndexMut};
-
 use super::{
     value::{FLOAT_DISCRIMINANT, INTEGER_DISCRIMINANT, NUMBER_DISCRIMINANT},
     IntoNumeric, IntoPrimitive, IntoValue, Numeric, Primitive, String, Value,
@@ -20,6 +18,8 @@ use crate::{
     },
     SmallInteger,
 };
+use alloc::string::ToString;
+use core::ops::{Index, IndexMut};
 
 pub use data::NumberHeapData;
 use num_traits::PrimInt;
@@ -96,8 +96,8 @@ impl IntoNumeric for Number {
     }
 }
 
-impl std::fmt::Debug for Number {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for Number {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match &self {
             Number::Number(idx) => write!(f, "Number({:?})", idx),
             Number::Integer(value) => write!(f, "{}", value.into_i64()),
@@ -1160,7 +1160,7 @@ impl Number {
             }
             Number::Integer(x) => {
                 let x = x.into_i64();
-                Ok(String::from_string(agent, format!("{x}")))
+                Ok(String::from_string(agent, alloc::format!("{x}")))
             }
             Number::Float(x) => {
                 let mut buffer = ryu_js::Buffer::new();
@@ -1217,7 +1217,7 @@ impl IndexMut<HeapNumber> for Agent {
     }
 }
 
-impl Index<HeapNumber> for Vec<Option<NumberHeapData>> {
+impl Index<HeapNumber> for alloc::vec::Vec<Option<NumberHeapData>> {
     type Output = f64;
 
     fn index(&self, index: HeapNumber) -> &Self::Output {
@@ -1230,7 +1230,7 @@ impl Index<HeapNumber> for Vec<Option<NumberHeapData>> {
     }
 }
 
-impl IndexMut<HeapNumber> for Vec<Option<NumberHeapData>> {
+impl IndexMut<HeapNumber> for alloc::vec::Vec<Option<NumberHeapData>> {
     fn index_mut(&mut self, index: HeapNumber) -> &mut Self::Output {
         &mut self
             .get_mut(index.get_index())

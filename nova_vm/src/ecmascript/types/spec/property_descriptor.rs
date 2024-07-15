@@ -97,7 +97,7 @@ impl PropertyDescriptor {
         // 1. If Desc is undefined, return undefined.
         let desc = desc?;
 
-        let mut entries = Vec::with_capacity(4);
+        let mut entries = alloc::vec::Vec::with_capacity(4);
 
         // 4. If Desc has a [[Value]] field, then
         if let Some(value) = desc.value {

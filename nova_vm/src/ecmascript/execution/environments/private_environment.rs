@@ -6,7 +6,7 @@ use crate::{
     ecmascript::types::{Function, Value},
     heap::{CompactionLists, HeapMarkAndSweep, WorkQueues},
 };
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 use super::PrivateEnvironmentIndex;
 
@@ -45,7 +45,7 @@ pub struct PrivateEnvironment {
     /// ### \[\[Names\]\]
     ///
     /// The Private Names declared by this class.
-    pub(crate) names: HashMap<String, PrivateName>,
+    pub(crate) names: HashMap<alloc::string::String, PrivateName>,
 }
 
 impl HeapMarkAndSweep for PrivateEnvironment {

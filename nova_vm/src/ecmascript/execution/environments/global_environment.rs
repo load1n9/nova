@@ -11,7 +11,7 @@ use crate::ecmascript::execution::JsResult;
 use crate::ecmascript::types::{Object, PropertyDescriptor, PropertyKey, String, Value};
 use crate::ecmascript::{execution::Agent, types::InternalMethods};
 use crate::heap::{CompactionLists, HeapMarkAndSweep, WorkQueues};
-use std::collections::HashSet;
+use hashbrown::HashSet;
 
 use super::{
     DeclarativeEnvironment, DeclarativeEnvironmentIndex, GlobalEnvironmentIndex, ObjectEnvironment,

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::borrow::Borrow;
+use core::borrow::Borrow;
 
 use super::{
     element_array::{ElementArrayKey, ElementsVector},
@@ -42,6 +42,9 @@ use crate::ecmascript::{
     types::{bigint::HeapBigInt, HeapNumber, HeapString, OrdinaryObject, Symbol, Value},
 };
 
+use alloc::boxed::Box;
+use alloc::vec;
+use alloc::vec::Vec;
 #[derive(Debug)]
 pub struct HeapBits {
     pub array_buffers: Box<[bool]>,

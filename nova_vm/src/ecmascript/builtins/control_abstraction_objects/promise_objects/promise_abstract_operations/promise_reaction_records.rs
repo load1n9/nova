@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{execution::Agent, types::Function},
@@ -81,7 +81,7 @@ impl IndexMut<PromiseReaction> for Agent {
     }
 }
 
-impl Index<PromiseReaction> for Vec<Option<PromiseReactionRecord>> {
+impl Index<PromiseReaction> for alloc::vec::Vec<Option<PromiseReactionRecord>> {
     type Output = PromiseReactionRecord;
 
     fn index(&self, index: PromiseReaction) -> &Self::Output {
@@ -92,7 +92,7 @@ impl Index<PromiseReaction> for Vec<Option<PromiseReactionRecord>> {
     }
 }
 
-impl IndexMut<PromiseReaction> for Vec<Option<PromiseReactionRecord>> {
+impl IndexMut<PromiseReaction> for alloc::vec::Vec<Option<PromiseReactionRecord>> {
     fn index_mut(&mut self, index: PromiseReaction) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("PromiseReaction out of bounds")

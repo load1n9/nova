@@ -323,7 +323,7 @@ impl ArrayPrototype {
         // 3. Let n be 0.
         let mut n = 0;
         // 4. Prepend O to items.
-        let mut items = Vec::from(items.0);
+        let mut items = alloc::vec::Vec::from(items.0);
         items.insert(0, o.into_value());
         // 5. For each element E of items, do
         for e in items {
@@ -1377,7 +1377,7 @@ impl ArrayPrototype {
             to_string(agent, separator)?
         };
         // 5. Let R be the empty String.
-        let mut r = std::string::String::with_capacity(len * 10);
+        let mut r = alloc::string::String::with_capacity(len * 10);
         // 6. Let k be 0.
         // 7. Repeat, while k < len,
         // b. Let element be ? Get(O, ! ToString(𝔽(k))).
@@ -1953,7 +1953,7 @@ impl ArrayPrototype {
                         // the destination would not call any JS code so this
                         // is spec-wise correct.
                         unsafe {
-                            std::ptr::copy_nonoverlapping(source_data, destination_data, count)
+                            core::ptr::copy_nonoverlapping(source_data, destination_data, count)
                         };
                         set(
                             agent,

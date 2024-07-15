@@ -4,10 +4,8 @@
 
 //! ### [6.2.9 Data Blocks](https://tc39.es/ecma262/#sec-data-blocks)
 
-use std::{
-    alloc::{alloc_zeroed, dealloc, handle_alloc_error, Layout},
-    ptr::{read_unaligned, write_bytes, write_unaligned, NonNull},
-};
+use alloc::alloc::{alloc_zeroed, dealloc, handle_alloc_error, Layout};
+use core::ptr::{read_unaligned, write_bytes, write_unaligned, NonNull};
 
 use crate::ecmascript::execution::{agent::ExceptionType, Agent, JsResult};
 
@@ -132,7 +130,7 @@ impl DataBlock {
     }
 
     pub fn view_len<T: Viewable>(&self, byte_offset: usize) -> usize {
-        let size = std::mem::size_of::<T>();
+        let size = core::mem::size_of::<T>();
         (self.byte_length - byte_offset) / size
     }
 
@@ -161,7 +159,7 @@ impl DataBlock {
     }
 
     pub fn get<T: Viewable>(&self, offset: usize) -> Option<T> {
-        let size = std::mem::size_of::<T>();
+        let size = core::mem::size_of::<T>();
         let byte_offset = offset * size;
         if byte_offset >= self.byte_length {
             None
@@ -175,7 +173,7 @@ impl DataBlock {
     }
 
     pub fn set<T: Viewable>(&mut self, offset: usize, value: T) {
-        let size = std::mem::size_of::<T>();
+        let size = core::mem::size_of::<T>();
         let byte_offset = offset * size;
         if let Some(data) = self.ptr {
             if byte_offset <= self.byte_length {
@@ -193,7 +191,7 @@ impl DataBlock {
         src_offset: usize,
         count: usize,
     ) {
-        let size = std::mem::size_of::<T>();
+        let size = core::mem::size_of::<T>();
         let byte_length = count * size;
         if byte_length == 0 {
             return;
@@ -213,7 +211,7 @@ impl DataBlock {
     }
 
     pub fn copy_within<T: Viewable>(&mut self, dst_offset: usize, src_offset: usize, count: usize) {
-        let size = std::mem::size_of::<T>();
+        let size = core::mem::size_of::<T>();
         let byte_length = count * size;
         if byte_length == 0 {
             return;
@@ -224,7 +222,7 @@ impl DataBlock {
         debug_assert!(src_byte_offset + byte_length <= self.byte_length);
         if let Some(ptr) = self.as_mut_ptr(0) {
             // SAFETY: Buffer is valid for reads and writes of u8 for the whole length.
-            let slice = unsafe { std::slice::from_raw_parts_mut(ptr, self.byte_length) };
+            let slice = unsafe { core::slice::from_raw_parts_mut(ptr, self.byte_length) };
             slice.copy_within(
                 src_byte_offset..(src_byte_offset + byte_length),
                 dst_byte_offset,

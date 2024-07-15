@@ -50,7 +50,7 @@ impl Default for PromiseState {
 #[derive(Debug, Clone)]
 pub(crate) enum PromiseReactions {
     One(PromiseReaction),
-    Many(Vec<PromiseReaction>),
+    Many(alloc::vec::Vec<PromiseReaction>),
 }
 
 impl PromiseReactions {

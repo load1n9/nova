@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -138,7 +138,7 @@ impl IndexMut<TypedArray> for Agent {
     }
 }
 
-impl Index<TypedArray> for Vec<Option<TypedArrayHeapData>> {
+impl Index<TypedArray> for alloc::vec::Vec<Option<TypedArrayHeapData>> {
     type Output = TypedArrayHeapData;
 
     fn index(&self, index: TypedArray) -> &Self::Output {
@@ -149,7 +149,7 @@ impl Index<TypedArray> for Vec<Option<TypedArrayHeapData>> {
     }
 }
 
-impl IndexMut<TypedArray> for Vec<Option<TypedArrayHeapData>> {
+impl IndexMut<TypedArray> for alloc::vec::Vec<Option<TypedArrayHeapData>> {
     fn index_mut(&mut self, index: TypedArray) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("TypedArray out of bounds")

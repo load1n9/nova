@@ -2,7 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
+use alloc::vec::Vec;
 
 use crate::{
     ecmascript::{
@@ -412,7 +413,7 @@ impl InternalMethods for PrimitiveObject {
         // 1. Return OrdinaryOwnPropertyKeys(O).
         match self.get_backing_object(agent) {
             Some(backing_object) => Ok(ordinary_own_property_keys(agent, backing_object)),
-            None => Ok(vec![]),
+            None => Ok(alloc::vec![]),
         }
     }
 }

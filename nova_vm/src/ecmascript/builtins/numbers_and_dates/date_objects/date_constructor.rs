@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::time::SystemTime;
 
 use crate::ecmascript::abstract_operations::type_conversion::to_number;
 use crate::ecmascript::builders::builtin_function_builder::BuiltinFunctionBuilder;
@@ -65,7 +64,7 @@ impl DateConstructor {
         // 1. If NewTarget is undefined, then
         let Some(new_target) = new_target else {
             // a. Let now be the time value (UTC) identifying the current time.
-            let _now = SystemTime::now();
+            // let _now = SystemTime::now();
             // b. Return ToDateString(now).
             todo!("ToDateString(now)");
         };
@@ -75,7 +74,8 @@ impl DateConstructor {
             // 3. If numberOfArgs = 0, then
             0 => {
                 // a. Let dv be the time value (UTC) identifying the current time.
-                SystemTime::now()
+                // SystemTime::now()
+                todo!();
             }
             // 4. Else if numberOfArgs = 1, then
             1 => {
@@ -123,16 +123,17 @@ impl DateConstructor {
 
     /// ### [21.1.2.2 Number.isFinite ( number )](https://tc39.es/ecma262/#sec-number.isfinite)
     fn now(_agent: &mut Agent, _this_value: Value, _arguments: ArgumentsList) -> JsResult<Value> {
-        let time_value = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_millis();
-        assert_eq!(time_value as u64 as u128, time_value);
-        let time_value = time_value as u64;
-        Ok(
-            Number::from(SmallInteger::try_from(time_value).expect("SystemTime is beyond range"))
-                .into_value(),
-        )
+        // let time_value = SystemTime::now()
+        //     .duration_since(SystemTime::UNIX_EPOCH)
+        //     .unwrap()
+        //     .as_millis();
+        // assert_eq!(time_value as u64 as u128, time_value);
+        // let time_value = time_value as u64;
+        // Ok(
+        //     Number::from(SmallInteger::try_from(time_value).expect("SystemTime is beyond range"))
+        //         .into_value(),
+        // )
+        todo!();
     }
 
     /// ### [21.1.2.3 Number.isInteger ( number )](https://tc39.es/ecma262/#sec-number.isinteger)

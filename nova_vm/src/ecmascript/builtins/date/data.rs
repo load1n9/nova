@@ -6,15 +6,15 @@ use crate::{
     ecmascript::types::OrdinaryObject,
     heap::{CompactionLists, HeapMarkAndSweep, WorkQueues},
 };
-use std::time::SystemTime;
+// use std::time::SystemTime;
 
 #[derive(Debug, Clone, Copy)]
-pub struct DateHeapData {
+pub struct DateHeapData<T> {
     pub(crate) object_index: Option<OrdinaryObject>,
-    pub(crate) date: Option<SystemTime>,
+    pub(crate) date: Option<T>,
 }
 
-impl DateHeapData {
+impl<T> DateHeapData<T> {
     pub(crate) fn new_invalid() -> Self {
         Self {
             object_index: None,
@@ -23,7 +23,7 @@ impl DateHeapData {
     }
 }
 
-impl HeapMarkAndSweep for DateHeapData {
+impl<T> HeapMarkAndSweep for DateHeapData<T> {
     fn mark_values(&self, queues: &mut WorkQueues) {
         self.object_index.mark_values(queues);
     }

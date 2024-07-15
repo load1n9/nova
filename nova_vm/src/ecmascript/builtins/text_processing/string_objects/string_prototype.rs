@@ -341,7 +341,7 @@ impl StringPrototype {
         // 2. Let S be ? ToString(O).
         let s = to_string(agent, o)?;
         // 3. Let R be S.
-        let mut strings = Vec::with_capacity(args.len() + 1);
+        let mut strings = alloc::vec::Vec::with_capacity(args.len() + 1);
         strings.push(s);
         // 4. For each element next of args, do
         //     a. Let nextString be ? ToString(next).
@@ -650,7 +650,7 @@ impl StringPrototype {
         };
         // SAFETY: The memory for `substring` (and for the WTF-8 representation
         // of `s`) won't be moved or deallocated before this function returns.
-        let substring: &'static str = unsafe { std::mem::transmute(substring) };
+        let substring: &'static str = unsafe { core::mem::transmute(substring) };
         Ok(String::from_str(agent, substring).into_value())
     }
 
@@ -761,7 +761,7 @@ impl StringPrototype {
         let substring = &s.as_str(agent)[u8_from..u8_to];
         // SAFETY: The memory for `substring` (and for the WTF-8 representation
         // of `s`) won't be moved or deallocated before this function returns.
-        let substring: &'static str = unsafe { std::mem::transmute(substring) };
+        let substring: &'static str = unsafe { core::mem::transmute(substring) };
         Ok(String::from_str(agent, substring).into_value())
     }
 

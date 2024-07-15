@@ -1,7 +1,6 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
 use crate::{
     ecmascript::{
         abstract_operations::{
@@ -30,6 +29,7 @@ use crate::{
     },
     heap::{IntrinsicConstructorIndexes, ObjectEntry, WellKnownSymbolIndexes},
 };
+use alloc::vec::Vec;
 
 pub(crate) struct ObjectConstructor;
 
@@ -932,7 +932,7 @@ fn get_own_string_property_keys(agent: &mut Agent, o: Value) -> JsResult<Vec<Val
         match next_key {
             // i. Append nextKey to nameList.
             PropertyKey::Integer(next_key) => {
-                let next_key = format!("{}", next_key.into_i64());
+                let next_key = alloc::format!("{}", next_key.into_i64());
                 name_list.push(Value::from_string(agent, next_key));
             }
             PropertyKey::SmallString(next_key) => name_list.push(Value::SmallString(next_key)),

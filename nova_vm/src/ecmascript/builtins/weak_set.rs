@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -123,7 +123,7 @@ impl IndexMut<WeakSet> for Agent {
     }
 }
 
-impl Index<WeakSet> for Vec<Option<WeakSetHeapData>> {
+impl Index<WeakSet> for alloc::vec::Vec<Option<WeakSetHeapData>> {
     type Output = WeakSetHeapData;
 
     fn index(&self, index: WeakSet) -> &Self::Output {
@@ -134,7 +134,7 @@ impl Index<WeakSet> for Vec<Option<WeakSetHeapData>> {
     }
 }
 
-impl IndexMut<WeakSet> for Vec<Option<WeakSetHeapData>> {
+impl IndexMut<WeakSet> for alloc::vec::Vec<Option<WeakSetHeapData>> {
     fn index_mut(&mut self, index: WeakSet) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("WeakSet out of bounds")

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -162,7 +162,7 @@ impl IndexMut<Set> for Agent {
     }
 }
 
-impl Index<Set> for Vec<Option<SetHeapData>> {
+impl Index<Set> for alloc::vec::Vec<Option<SetHeapData>> {
     type Output = SetHeapData;
 
     fn index(&self, index: Set) -> &Self::Output {
@@ -173,7 +173,7 @@ impl Index<Set> for Vec<Option<SetHeapData>> {
     }
 }
 
-impl IndexMut<Set> for Vec<Option<SetHeapData>> {
+impl IndexMut<Set> for alloc::vec::Vec<Option<SetHeapData>> {
     fn index_mut(&mut self, index: Set) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("Set out of bounds")

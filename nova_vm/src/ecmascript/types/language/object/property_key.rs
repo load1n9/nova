@@ -19,7 +19,7 @@ use crate::{
     },
     SmallInteger, SmallString,
 };
-
+use alloc::string::ToString;
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum PropertyKey {
@@ -42,7 +42,7 @@ impl PropertyKey {
             .unwrap_or_else(|| String::from_static_str(agent, str).into())
     }
 
-    pub fn from_string(agent: &mut Agent, string: std::string::String) -> Self {
+    pub fn from_string(agent: &mut Agent, string: alloc::string::String) -> Self {
         parse_string_to_integer_property_key(&string)
             .unwrap_or_else(|| String::from_string(agent, string).into())
     }

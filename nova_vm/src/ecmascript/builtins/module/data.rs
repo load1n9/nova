@@ -19,7 +19,7 @@ use super::Module;
 pub struct ModuleHeapData {
     pub(crate) object_index: Option<OrdinaryObject>,
     pub(crate) module: ModuleRecord,
-    pub(crate) exports: Box<[String]>,
+    pub(crate) exports: alloc::boxed::Box<[String]>,
 }
 
 #[derive(Debug, Clone, Copy)]

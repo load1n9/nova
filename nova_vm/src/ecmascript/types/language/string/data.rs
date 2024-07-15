@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{cell::OnceCell, num::NonZeroUsize};
+use core::{cell::OnceCell, num::NonZeroUsize};
 
 use wtf8::{Wtf8, Wtf8Buf};
 
@@ -20,7 +20,7 @@ impl PartialEq for StringHeapData {
         if let (&StringBuffer::Static(self_str), &StringBuffer::Static(other_str)) =
             (&self.data, &other.data)
         {
-            if std::ptr::eq(self_str, other_str) {
+            if core::ptr::eq(self_str, other_str) {
                 return true;
             }
         }
@@ -37,7 +37,7 @@ pub(crate) enum IndexMapping {
         /// When the UTF-16 character would be the second character in a
         /// surrogate pair, it maps to None because there is no corresponding
         /// UTF-8 index.
-        mapping: Box<[Option<NonZeroUsize>]>,
+        mapping: alloc::boxed::Box<[Option<NonZeroUsize>]>,
     },
 }
 
@@ -71,7 +71,7 @@ impl StringHeapData {
 
             // All indices less than `idx` map to ASCII bytes, so all UTF-16
             // indices less *or equal* than `idx` map to that same UTF-8 index
-            let mut mapping: Vec<Option<NonZeroUsize>> = (0..=idx).map(NonZeroUsize::new).collect();
+            let mut mapping: alloc::vec::Vec<Option<NonZeroUsize>> = (0..=idx).map(NonZeroUsize::new).collect();
 
             if ch.len_utf16() != 1 {
                 debug_assert_eq!(ch.len_utf16(), 2);
@@ -166,9 +166,9 @@ impl StringHeapData {
                             pivot -= 1;
                         }
                         match mapping[pivot].unwrap().get().cmp(&utf8_idx) {
-                            std::cmp::Ordering::Less => pivot..mapping.len(),
-                            std::cmp::Ordering::Equal => return pivot,
-                            std::cmp::Ordering::Greater => 0..pivot,
+                            core::cmp::Ordering::Less => pivot..mapping.len(),
+                            core::cmp::Ordering::Equal => return pivot,
+                            core::cmp::Ordering::Greater => 0..pivot,
                         }
                     };
 
@@ -193,9 +193,9 @@ impl StringHeapData {
                         }
 
                         let new_range = match mapping[pivot].unwrap().get().cmp(&utf8_idx) {
-                            std::cmp::Ordering::Less => pivot..range.end,
-                            std::cmp::Ordering::Equal => return pivot,
-                            std::cmp::Ordering::Greater => range.start..pivot,
+                            core::cmp::Ordering::Less => pivot..range.end,
+                            core::cmp::Ordering::Equal => return pivot,
+                            core::cmp::Ordering::Greater => range.start..pivot,
                         };
                         assert_ne!(range, new_range);
 
@@ -231,7 +231,7 @@ impl StringHeapData {
         }
     }
 
-    pub fn from_string(str: String) -> Self {
+    pub fn from_string(str: alloc::string::String) -> Self {
         debug_assert!(str.len() > 7);
         assert!(str.len() <= Self::MAX_UTF8_LENGTH, "String is too long.");
         StringHeapData {

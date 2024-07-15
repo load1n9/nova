@@ -216,13 +216,13 @@ impl NumberPrototype {
 
 fn f64_to_exponential(agent: &mut Agent, x: f64) -> Value {
     match x.abs() {
-        x if x >= 1.0 || x == 0.0 => Value::from_string(agent, format!("{x:e}").replace('e', "e+")),
-        _ => Value::from_string(agent, format!("{x:e}")),
+        x if x >= 1.0 || x == 0.0 => Value::from_string(agent, alloc::format!("{x:e}").replace('e', "e+")),
+        _ => Value::from_string(agent, alloc::format!("{x:e}")),
     }
 }
 
 fn f64_to_exponential_with_precision(agent: &mut Agent, x: f64, f: usize) -> Value {
-    let mut res = format!("{x:.f$e}");
+    let mut res = alloc::format!("{x:.f$e}");
     let idx = res.find('e').unwrap();
     if res.as_bytes()[idx + 1] != b'-' {
         res.insert(idx + 1, '+');

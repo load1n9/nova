@@ -15,6 +15,9 @@ use crate::{
     },
     heap::CreateHeapData,
 };
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 use num_bigint::BigInt;
 use num_traits::Num;
 use oxc_ast::{
@@ -23,6 +26,7 @@ use oxc_ast::{
 };
 use oxc_span::Atom;
 use oxc_syntax::operator::{BinaryOperator, UnaryOperator};
+use print_no_std::eprintln;
 
 pub type IndexType = u16;
 
@@ -90,7 +94,7 @@ impl Executable {
         }
 
         let kind: Instruction =
-            unsafe { std::mem::transmute::<u8, Instruction>(self.instructions[*ip]) };
+            unsafe { core::mem::transmute::<u8, Instruction>(self.instructions[*ip]) };
         *ip += 1;
 
         let mut args: [Option<IndexType>; 2] = [None, None];
@@ -99,7 +103,7 @@ impl Executable {
             let length = self.instructions[*ip..].len();
             if length >= 2 {
                 let bytes = IndexType::from_ne_bytes(unsafe {
-                    *std::mem::transmute::<*const u8, *const [u8; 2]>(
+                    *core::mem::transmute::<*const u8, *const [u8; 2]>(
                         self.instructions[*ip..].as_ptr(),
                     )
                 });
@@ -134,7 +138,7 @@ impl Executable {
         // SAFETY: Script uniquely owns the Program and the body buffer does
         // not move under any circumstances during heap operations.
         let body: &[Statement] =
-            unsafe { std::mem::transmute(agent[script].ecmascript_code.body.as_slice()) };
+            unsafe { core::mem::transmute(agent[script].ecmascript_code.body.as_slice()) };
 
         Self::_compile_statements(agent, body, true)
     }
@@ -152,7 +156,7 @@ impl Executable {
         // SAFETY: Script referred by the Function uniquely owns the Program
         // and the body buffer does not move under any circumstances during
         // heap operations.
-        let body: &[Statement] = unsafe { std::mem::transmute(body.statements.as_slice()) };
+        let body: &[Statement] = unsafe { core::mem::transmute(body.statements.as_slice()) };
 
         Self::_compile_statements(agent, body, is_concise_body)
     }
@@ -204,7 +208,7 @@ impl Executable {
 
     fn _push_instruction(&mut self, instruction: Instruction) {
         self.instructions
-            .push(unsafe { std::mem::transmute::<Instruction, u8>(instruction) });
+            .push(unsafe { core::mem::transmute::<Instruction, u8>(instruction) });
     }
 
     fn add_instruction(&mut self, instruction: Instruction) {
@@ -353,7 +357,7 @@ impl Executable {
     fn add_jump_index(&mut self) -> JumpIndex {
         self.add_index(0);
         JumpIndex {
-            index: self.instructions.len() - std::mem::size_of::<IndexType>(),
+            index: self.instructions.len() - core::mem::size_of::<IndexType>(),
         }
     }
 
@@ -866,7 +870,7 @@ impl CompileEvaluation for ast::ArrowFunctionExpression<'_> {
         ctx.exe
             .add_arrow_function_expression(ArrowFunctionExpression {
                 expression: unsafe {
-                    std::mem::transmute::<
+                    core::mem::transmute::<
                         &ast::ArrowFunctionExpression<'_>,
                         &'static ast::ArrowFunctionExpression<'static>,
                     >(self)
@@ -882,7 +886,7 @@ impl CompileEvaluation for ast::Function<'_> {
     fn compile(&self, ctx: &mut CompileContext) {
         ctx.exe.add_function_expression(FunctionExpression {
             expression: unsafe {
-                std::mem::transmute::<&ast::Function<'_>, &'static ast::Function<'static>>(self)
+                core::mem::transmute::<&ast::Function<'_>, &'static ast::Function<'static>>(self)
             },
             // CompileContext holds a name identifier for us if this is NamedEvaluation.
             identifier: ctx.name_identifier.take(),
@@ -2187,7 +2191,7 @@ impl CompileEvaluation for ast::BlockStatement<'_> {
             .add_instruction(Instruction::EnterDeclarativeEnvironment);
         // SAFETY: Stupid lifetime transmute.
         let body = unsafe {
-            std::mem::transmute::<
+            core::mem::transmute::<
                 &oxc_allocator::Vec<'_, Statement<'_>>,
                 &'static oxc_allocator::Vec<'static, Statement<'static>>,
             >(&self.body)

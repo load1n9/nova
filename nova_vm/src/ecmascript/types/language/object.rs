@@ -1511,7 +1511,7 @@ impl InternalMethods for Object {
         }
     }
 
-    fn internal_own_property_keys(self, agent: &mut Agent) -> JsResult<Vec<PropertyKey>> {
+    fn internal_own_property_keys(self, agent: &mut Agent) -> JsResult<alloc::vec::Vec<PropertyKey>> {
         match self {
             Object::Object(data) => data.internal_own_property_keys(agent),
             Object::Array(data) => data.internal_own_property_keys(agent),

@@ -107,7 +107,7 @@ impl FunctionPrototype {
                 );
             }
         };
-        let args: Vec<Value> = elements
+        let args: alloc::vec::Vec<Value> = elements
             .iter()
             .map(|value| value.unwrap_or(Value::Undefined))
             .collect();
@@ -173,10 +173,10 @@ impl FunctionPrototype {
                     || "function () {{ [ native code ] }}".into(),
                     |initial_name| match initial_name {
                         crate::ecmascript::types::String::String(idx) => {
-                            format!("function {}() {{ [ native code ] }}", agent[idx].as_str())
+                            alloc::format!("function {}() {{ [ native code ] }}", agent[idx].as_str())
                         }
                         crate::ecmascript::types::String::SmallString(string) => {
-                            format!("function {}() {{ [ native code ] }}", string.as_str())
+                            alloc::format!("function {}() {{ [ native code ] }}", string.as_str())
                         }
                     },
                 );

@@ -10,7 +10,7 @@ use crate::{
     },
     heap::{CompactionLists, HeapMarkAndSweep, WorkQueues},
 };
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 /// ### [9.1.1.1 Declarative Environment Records](https://tc39.es/ecma262/#sec-declarative-environment-records)
 ///

@@ -5,7 +5,7 @@
 pub(crate) mod abstract_operations;
 pub(crate) mod data;
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -134,7 +134,7 @@ impl IndexMut<RegExp> for Agent {
     }
 }
 
-impl Index<RegExp> for Vec<Option<RegExpHeapData>> {
+impl Index<RegExp> for alloc::vec::Vec<Option<RegExpHeapData>> {
     type Output = RegExpHeapData;
 
     fn index(&self, index: RegExp) -> &Self::Output {
@@ -145,7 +145,7 @@ impl Index<RegExp> for Vec<Option<RegExpHeapData>> {
     }
 }
 
-impl IndexMut<RegExp> for Vec<Option<RegExpHeapData>> {
+impl IndexMut<RegExp> for alloc::vec::Vec<Option<RegExpHeapData>> {
     fn index_mut(&mut self, index: RegExp) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("RegExp out of bounds")

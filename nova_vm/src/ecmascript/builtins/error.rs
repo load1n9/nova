@@ -4,7 +4,8 @@
 
 mod data;
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
+use alloc::vec::Vec;
 
 pub(crate) use data::ErrorHeapData;
 

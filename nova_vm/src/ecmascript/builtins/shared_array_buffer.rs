@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -85,7 +85,7 @@ impl IndexMut<SharedArrayBuffer> for Agent {
     }
 }
 
-impl Index<SharedArrayBuffer> for Vec<Option<SharedArrayBufferHeapData>> {
+impl Index<SharedArrayBuffer> for alloc::vec::Vec<Option<SharedArrayBufferHeapData>> {
     type Output = SharedArrayBufferHeapData;
 
     fn index(&self, index: SharedArrayBuffer) -> &Self::Output {
@@ -96,7 +96,7 @@ impl Index<SharedArrayBuffer> for Vec<Option<SharedArrayBufferHeapData>> {
     }
 }
 
-impl IndexMut<SharedArrayBuffer> for Vec<Option<SharedArrayBufferHeapData>> {
+impl IndexMut<SharedArrayBuffer> for alloc::vec::Vec<Option<SharedArrayBufferHeapData>> {
     fn index_mut(&mut self, index: SharedArrayBuffer) -> &mut Self::Output {
         self.get_mut(index.get_index())
             .expect("SharedArrayBuffer out of bounds")

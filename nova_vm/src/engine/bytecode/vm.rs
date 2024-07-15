@@ -2,8 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use oxc_syntax::operator::BinaryOperator;
-
 use crate::{
     ecmascript::{
         abstract_operations::{
@@ -38,6 +36,10 @@ use crate::{
     },
     heap::WellKnownSymbolIndexes,
 };
+use print_no_std::eprintln;
+// use alloc::string::ToString;
+use alloc::vec::Vec;
+use oxc_syntax::operator::BinaryOperator;
 
 use super::{
     instructions::Instr,
@@ -817,7 +819,7 @@ impl Vm {
                     let string = String::try_from(*ele).unwrap();
                     length += string.len(agent);
                 }
-                let mut result_string = std::string::String::with_capacity(length);
+                let mut result_string = alloc::string::String::with_capacity(length);
                 for ele in vm.stack[last_item..].iter() {
                     let string = String::try_from(*ele).unwrap();
                     result_string.push_str(string.as_str(agent));
@@ -920,7 +922,7 @@ impl Vm {
                         if let Some(result) = result {
                             vm.result = Some(match result {
                                 PropertyKey::Integer(int) => {
-                                    Value::from_string(agent, format!("{}", int.into_i64()))
+                                    Value::from_string(agent, alloc::format!("{}", int.into_i64()))
                                 }
                                 PropertyKey::SmallString(data) => Value::SmallString(data),
                                 PropertyKey::String(data) => Value::String(data),

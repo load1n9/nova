@@ -2,8 +2,245 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::thread;
+#[repr(C)]
+struct Handle(usize);
 
+fn spawn_std_like<F, T>(f: F) -> Handle
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    try_spawn_std_like(f).expect("failed to spawn thread")
+}
+
+fn try_spawn_std_like<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    extern "system" fn thread_start(main: *mut u8) -> u32 {
+        unsafe { Box::from_raw(main as *mut Box<dyn FnOnce()>)(); }
+        0
+    }
+
+    let p = Box::new(Box::new(f));
+
+    let handle = CreateThread(
+        thread_start,
+        &*p as *const _ as *mut _
+    );
+
+    if handle.0 != 0 {
+        core::mem::forget(p);
+        Ok(handle)
+    } else {
+        Err(())
+    }
+}
+
+// Minimal version of `kernel32.CreateThread`, with only the relevant parameters.
+#[allow(non_snake_case)]
+extern "system" fn CreateThread(
+    start_address: extern "system" fn(*mut u8) -> u32,
+    parameter: *mut u8
+) -> Handle {
+    start_address(parameter);
+    // Emulate successful `CreateThread` call.
+    Handle(4)
+}
+// Explicitly typed out, `std` style.
+fn spawn0<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    extern "system" fn thread_start(f: *mut u8) -> u32 {
+        let f = f as *mut Box<dyn FnOnce()>;
+        let f: Box<Box<dyn FnOnce()>> = unsafe {
+            Box::from_raw(f)
+        };
+        f();
+        0
+    }
+
+    let p = Box::new(Box::new(f));
+
+    let handle = CreateThread(
+        thread_start,
+        &*p as *const _ as *mut _
+    );
+
+    if handle.0 != 0 {
+        core::mem::forget(p);
+        Ok(handle)
+    } else {
+        Err(())
+    }
+}
+
+// Explicitly typed out, with `into_raw`.
+fn spawn1<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    extern "system" fn thread_start(f: *mut u8) -> u32 {
+        let f = f as *mut Box<dyn FnOnce()>;
+        let f: Box<Box<dyn FnOnce()>> = unsafe {
+            Box::from_raw(f)
+        };
+        f();
+        0
+    }
+
+    let f: Box<Box<F>> = Box::new(Box::new(f));
+    let f: *mut Box<F> = Box::into_raw(f);
+
+    let handle = CreateThread(
+        thread_start,
+        f as *mut _
+    );
+
+    if handle.0 != 0 {
+        Ok(handle)
+    } else {
+        unsafe { Box::from_raw(f); }
+        Err(())
+    }
+}
+
+// Implicitly typed `spawn1` variant.
+fn spawn2<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    extern "system" fn thread_start(f: *mut u8) -> u32 {
+        unsafe {
+            Box::from_raw(
+                f as *mut Box<dyn FnOnce()>
+            )();
+        }
+        0
+    }
+
+    let f = Box::into_raw(Box::new(Box::new(f)));
+
+    let handle = CreateThread(
+        thread_start,
+        f as *mut _
+    );
+
+    if handle.0 != 0 {
+        Ok(handle)
+    } else {
+        unsafe { Box::from_raw(f); }
+        Err(())
+    }
+}
+
+// Generic `thread_start` routine.
+fn spawn3<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    extern "system" fn thread_start<F, T>(f: *mut Box<F>) -> Handle
+    where
+        F: FnOnce() -> T,
+        F: Send + 'static,
+        T: Send + 'static
+    {
+        unsafe { Box::from_raw(f)(); }
+
+        Handle(1)
+    }
+
+    let f = Box::into_raw(Box::new(Box::new(f)));
+
+    let handle = thread_start(f);
+
+    if handle.0 != 0 {
+        Ok(handle)
+    } else {
+        unsafe { Box::from_raw(f); }
+        Err(())
+    }
+}
+
+// More explicit type in type-cast in `thread_start`. Does not compile.
+/*
+fn spawn4<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    extern "system" fn thread_start(f: *mut u8) -> u32 {
+        unsafe {
+            Box::from_raw(
+                // f as *mut Box<dyn FnOnce() -> (dyn Send + 'static) + Send + 'static>
+                // f as *mut Box<dyn FnOnce() -> (dyn Sized + Send + 'static) + Send + 'static>
+            )();
+        }
+        0
+    }
+
+    let f = Box::into_raw(Box::new(Box::new(f)));
+
+    let handle = CreateThread(
+        thread_start,
+        f as *mut _
+    );
+
+    if handle.0 != 0 {
+        Ok(handle)
+    } else {
+        unsafe { Box::from_raw(f); }
+        Err(())
+    }
+}
+*/
+
+// Like `spawn2`, but with `+ Send + 'static`.
+fn spawn5<F, T>(f: F) -> Result<Handle, ()>
+where
+    F: FnOnce() -> T,
+    F: Send + 'static,
+    T: Send + 'static,
+{
+    // `kernel32.CreateThread` like start routine.
+    extern "system" fn thread_start(f: *mut u8) -> u32 {
+        unsafe {
+            Box::from_raw(
+                f as *mut Box<dyn FnOnce() + Send + 'static>
+            )();
+        }
+        0
+    }
+
+    let f = Box::into_raw(Box::new(Box::new(f)));
+
+    let handle = unsafe { CreateThread(
+        thread_start,
+        f as *mut _
+    ) };
+
+    if handle.0 != 0 {
+        Ok(handle)
+    } else {
+        unsafe { Box::from_raw(f); }
+        Err(())
+    }
+}
+
+use alloc::boxed::Box;
 use super::{
     element_array::ElementArrays,
     heap_bits::{

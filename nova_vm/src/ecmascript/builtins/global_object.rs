@@ -2,8 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::HashSet;
-
+use hashbrown::HashSet;
+use alloc::boxed::Box;
 use oxc_ast::{
     ast::{BindingIdentifier, Program, VariableDeclarationKind},
     syntax_directed_operations::BoundNames,
@@ -411,7 +411,7 @@ pub fn eval_declaration_instantiation(
     }
 
     // 4. Let privateIdentifiers be a new empty List.
-    let mut private_identifiers = vec![];
+    let mut private_identifiers = alloc::vec![];
 
     // 5. Let pointer be privateEnv.
     let mut pointer = private_env;
@@ -436,7 +436,7 @@ pub fn eval_declaration_instantiation(
     // 7. If AllPrivateIdentifiersValid of body with argument privateIdentifiers is false, throw a SyntaxError exception.
 
     // 8. Let functionsToInitialize be a new empty List.
-    let mut functions_to_initialize = vec![];
+    let mut functions_to_initialize = alloc::vec![];
     // 9. Let declaredFunctionNames be a new empty List.
     let mut declared_function_names = HashSet::new();
 
@@ -485,7 +485,7 @@ pub fn eval_declaration_instantiation(
         // a. If d is either a VariableDeclaration, a ForBinding, or a BindingIdentifier, then
         if let VarScopedDeclaration::Variable(d) = d {
             // i. For each String vn of the BoundNames of d, do
-            let mut bound_names = vec![];
+            let mut bound_names = alloc::vec![];
             d.id.bound_names(&mut |identifier| {
                 bound_names.push(identifier.name.clone());
             });
@@ -522,8 +522,8 @@ pub fn eval_declaration_instantiation(
     // 16. For each element d of lexDeclarations, do
     for d in lex_declarations {
         // a. NOTE: Lexically declared names are only instantiated here but not initialized.
-        let mut bound_names = vec![];
-        let mut const_bound_names = vec![];
+        let mut bound_names = alloc::vec![];
+        let mut const_bound_names = alloc::vec![];
         let mut closure = |identifier: &BindingIdentifier| {
             bound_names.push(String::from_str(agent, identifier.name.as_str()));
         };

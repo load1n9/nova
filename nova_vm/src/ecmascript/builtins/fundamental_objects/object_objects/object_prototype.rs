@@ -199,11 +199,11 @@ impl ObjectPrototype {
                     let o = to_object(agent, this_value).unwrap();
                     let tag = get(agent, o, WellKnownSymbolIndexes::ToStringTag.into())?;
                     if let Ok(tag) = String::try_from(tag) {
-                        let str = format!("[object {}]", tag.as_str(agent));
+                        let str = alloc::format!("[object {}]", tag.as_str(agent));
                         Ok(Value::from_string(agent, str))
                     } else {
                         let str =
-                            format!("[object {}]", BUILTIN_STRING_MEMORY.Object.as_str(agent));
+                            alloc::format!("[object {}]", BUILTIN_STRING_MEMORY.Object.as_str(agent));
                         Ok(Value::from_string(agent, str))
                     }
                 }
@@ -215,11 +215,11 @@ impl ObjectPrototype {
                 let o = to_object(agent, this_value).unwrap();
                 let tag = get(agent, o, WellKnownSymbolIndexes::ToStringTag.into())?;
                 if let Ok(tag) = String::try_from(tag) {
-                    let str = format!("[object {}]", tag.as_str(agent));
+                    let str = alloc::format!("[object {}]", tag.as_str(agent));
                     Ok(Value::from_string(agent, str))
                 } else {
                     // 14. Else, let builtinTag be "Object".
-                    let str = format!("[object {}]", BUILTIN_STRING_MEMORY.Object.as_str(agent));
+                    let str = alloc::format!("[object {}]", BUILTIN_STRING_MEMORY.Object.as_str(agent));
                     Ok(Value::from_string(agent, str))
                 }
             }

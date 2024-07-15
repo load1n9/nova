@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::mem::size_of;
+use core::mem::size_of;
 
 use crate::{
     ecmascript::{
@@ -243,7 +243,7 @@ impl Value {
         String::from_str(agent, str).into_value()
     }
 
-    pub fn from_string(agent: &mut Agent, string: std::string::String) -> Value {
+    pub fn from_string(agent: &mut Agent, string: alloc::string::String) -> Value {
         String::from_string(agent, string).into_value()
     }
 

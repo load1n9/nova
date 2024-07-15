@@ -346,7 +346,7 @@ impl ReflectObject {
         // 2. Let keys be ? target.[[OwnPropertyKeys]]().
         // TODO: `PropertyKey::into_value` might not do the right thing for
         // integer keys.
-        let keys: Vec<Value> = target
+        let keys: alloc::vec::Vec<Value> = target
             .internal_own_property_keys(agent)?
             .into_iter()
             .map(PropertyKey::into_value)

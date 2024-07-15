@@ -9,7 +9,8 @@
 pub(crate) mod abstract_operations;
 mod data;
 
-use std::ops::{Index, IndexMut, RangeInclusive};
+use alloc::vec::Vec;
+use core::ops::{Index, IndexMut, RangeInclusive};
 
 use super::{array_set_length, ordinary::ordinary_define_own_property};
 use crate::{

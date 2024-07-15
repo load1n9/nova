@@ -6,6 +6,7 @@ use crate::{
     ecmascript::types::{OrdinaryObject, Value},
     heap::{CompactionLists, HeapMarkAndSweep, WorkQueues},
 };
+use alloc::vec::Vec;
 
 #[derive(Debug, Clone, Default)]
 pub struct WeakMapHeapData {

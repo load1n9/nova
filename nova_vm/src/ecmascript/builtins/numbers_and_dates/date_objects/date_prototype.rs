@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::time::SystemTime;
+// use std::time::SystemTime;
 
 use crate::{
     ecmascript::{
@@ -533,45 +533,46 @@ impl DatePrototype {
     }
 
     fn value_of(agent: &mut Agent, this_value: Value, _: ArgumentsList) -> JsResult<Value> {
-        let date_object = check_date_object(agent, this_value)?;
-        let data = &agent[date_object].date;
-        match data {
-            Some(system_time) => {
-                let time_as_millis = system_time
-                    .duration_since(SystemTime::UNIX_EPOCH)
-                    .map_or_else(
-                        |_| {
-                            // System time is before UNIX_EPOCH
-                            let value = SystemTime::UNIX_EPOCH
-                                .duration_since(*system_time)
-                                .unwrap()
-                                .as_millis();
-                            if value > MAX_SYSTEM_TIME_VALUE {
-                                // Time difference is over representable limit
-                                None
-                            } else {
-                                Some(-(value as i64))
-                            }
-                        },
-                        |value| {
-                            let value = value.as_millis();
-                            if value > MAX_SYSTEM_TIME_VALUE {
-                                None
-                            } else {
-                                Some(value as i64)
-                            }
-                        },
-                    );
-                match time_as_millis {
-                    Some(time_as_millis) => Ok(Number::from(
-                        SmallInteger::try_from(time_as_millis).unwrap(),
-                    )
-                    .into_value()),
-                    None => Ok(Value::nan()),
-                }
-            }
-            None => Ok(Value::nan()),
-        }
+        // let date_object = check_date_object(agent, this_value)?;
+        // let data = &agent[date_object].date;
+        // match data {
+        //     Some(system_time) => {
+        //         let time_as_millis = system_time
+        //             .duration_since(SystemTime::UNIX_EPOCH)
+        //             .map_or_else(
+        //                 |_| {
+        //                     // System time is before UNIX_EPOCH
+        //                     let value = SystemTime::UNIX_EPOCH
+        //                         .duration_since(*system_time)
+        //                         .unwrap()
+        //                         .as_millis();
+        //                     if value > MAX_SYSTEM_TIME_VALUE {
+        //                         // Time difference is over representable limit
+        //                         None
+        //                     } else {
+        //                         Some(-(value as i64))
+        //                     }
+        //                 },
+        //                 |value| {
+        //                     let value = value.as_millis();
+        //                     if value > MAX_SYSTEM_TIME_VALUE {
+        //                         None
+        //                     } else {
+        //                         Some(value as i64)
+        //                     }
+        //                 },
+        //             );
+        //         match time_as_millis {
+        //             Some(time_as_millis) => Ok(Number::from(
+        //                 SmallInteger::try_from(time_as_millis).unwrap(),
+        //             )
+        //             .into_value()),
+        //             None => Ok(Value::nan()),
+        //         }
+        //     }
+        //     None => Ok(Value::nan()),
+        // }
+        todo!()
     }
 
     fn to_primitive(_agent: &mut Agent, _this_value: Value, _: ArgumentsList) -> JsResult<Value> {

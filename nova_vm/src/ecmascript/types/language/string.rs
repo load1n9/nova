@@ -5,8 +5,6 @@
 include!(concat!(env!("OUT_DIR"), "/builtin_strings.rs"));
 mod data;
 
-use std::ops::{Index, IndexMut};
-
 use super::{IntoPrimitive, IntoValue, Primitive, PropertyKey, Value};
 use crate::{
     ecmascript::{execution::Agent, types::PropertyDescriptor},
@@ -15,6 +13,8 @@ use crate::{
     },
     SmallInteger, SmallString,
 };
+use alloc::vec::Vec;
+use core::ops::{Index, IndexMut};
 
 pub use data::StringHeapData;
 
@@ -189,7 +189,7 @@ impl String {
         agent.heap.create(str)
     }
 
-    pub fn from_string(agent: &mut Agent, string: std::string::String) -> String {
+    pub fn from_string(agent: &mut Agent, string: alloc::string::String) -> String {
         agent.heap.create(string)
     }
 
@@ -228,7 +228,7 @@ impl String {
             Empty,
             ExistingString(HeapString),
             SmallString { data: [u8; 7], len: usize },
-            String(std::string::String),
+            String(alloc::string::String),
         }
         let mut status = Status::Empty;
 
@@ -249,7 +249,7 @@ impl String {
                 }
                 Status::ExistingString(idx) => {
                     let mut result =
-                        std::string::String::with_capacity(agent[*idx].len() + string.len(agent));
+                        alloc::string::String::with_capacity(agent[*idx].len() + string.len(agent));
                     result.push_str(agent[*idx].as_str());
                     result.push_str(string.as_str(agent));
                     status = Status::String(result)
@@ -264,10 +264,10 @@ impl String {
                             .copy_from_slice(&smstr.data()[..string_len]);
                         *len += string_len;
                     } else {
-                        let mut result = std::string::String::with_capacity(*len + string_len);
+                        let mut result = alloc::string::String::with_capacity(*len + string_len);
                         // SAFETY: Since SmallStrings are guaranteed UTF-8, `&data[..len]` is the result
                         // of concatenating UTF-8 strings, which is always valid UTF-8.
-                        result.push_str(unsafe { std::str::from_utf8_unchecked(&data[..*len]) });
+                        result.push_str(unsafe { core::str::from_utf8_unchecked(&data[..*len]) });
                         result.push_str(string.as_str(agent));
                         status = Status::String(result);
                     }
@@ -282,7 +282,7 @@ impl String {
             Status::SmallString { data, len } => {
                 // SAFETY: Since SmallStrings are guaranteed UTF-8, `&data[..len]` is the result of
                 // concatenating UTF-8 strings, which is always valid UTF-8.
-                let str_slice = unsafe { std::str::from_utf8_unchecked(&data[..len]) };
+                let str_slice = unsafe { core::str::from_utf8_unchecked(&data[..len]) };
                 SmallString::from_str_unchecked(str_slice).into()
             }
             Status::String(string) => agent.heap.create(string),

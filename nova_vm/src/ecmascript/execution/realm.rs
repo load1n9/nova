@@ -17,13 +17,14 @@ use crate::{
     },
     heap::{CompactionLists, HeapMarkAndSweep, WorkQueues},
 };
-pub(crate) use intrinsics::Intrinsics;
-pub(crate) use intrinsics::ProtoIntrinsics;
-use std::{
+use alloc::vec::Vec;
+use core::{
     any::Any,
     marker::PhantomData,
     ops::{Index, IndexMut},
 };
+pub(crate) use intrinsics::Intrinsics;
+pub(crate) use intrinsics::ProtoIntrinsics;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RealmIdentifier(u32, PhantomData<Realm>);
@@ -1093,7 +1094,7 @@ mod test {
             // Safety: Tested to be within limits.
             panic!(
                 "Found a missing BuiltinFunction at constructor index {:?}",
-                unsafe { std::mem::transmute::<u32, IntrinsicConstructorIndexes>(changed_index) }
+                unsafe { core::mem::transmute::<u32, IntrinsicConstructorIndexes>(changed_index) }
             );
         }
         changed_index -= LAST_INTRINSIC_CONSTRUCTOR_INDEX as u32 + 1;
@@ -1101,7 +1102,7 @@ mod test {
             // Safety: Tested to be within limits.
             panic!(
                 "Found a missing BuiltinFunction at function index {:?}",
-                unsafe { std::mem::transmute::<u32, IntrinsicFunctionIndexes>(changed_index) }
+                unsafe { core::mem::transmute::<u32, IntrinsicFunctionIndexes>(changed_index) }
             );
         }
         panic!("Found a missing BuiltinFunction at index {:?}", index);
@@ -1113,7 +1114,7 @@ mod test {
         if changed_index <= LAST_INTRINSIC_OBJECT_INDEX as u32 {
             // Safety: Tested to be within limits.
             panic!("Found a missing Object at object index {:?}", unsafe {
-                std::mem::transmute::<u32, IntrinsicObjectIndexes>(changed_index)
+                core::mem::transmute::<u32, IntrinsicObjectIndexes>(changed_index)
             });
         }
         changed_index -= LAST_INTRINSIC_OBJECT_INDEX as u32 + 1;
@@ -1121,7 +1122,7 @@ mod test {
             // Safety: Tested to be within limits.
             panic!(
                 "Found a missing BuiltinFunction at constructor index {:?}",
-                unsafe { std::mem::transmute::<u32, IntrinsicConstructorIndexes>(changed_index) }
+                unsafe { core::mem::transmute::<u32, IntrinsicConstructorIndexes>(changed_index) }
             );
         }
         panic!("Found a missing object at index {:?}", index);

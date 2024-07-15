@@ -187,7 +187,7 @@ pub fn add_entries_from_iterable_map_constructor(
                         // It's thus safe to keep this borrow alive
                         // while we iterate the entries.
                         let data = unsafe {
-                            std::mem::transmute::<&mut MapHeapData, &'static mut MapHeapData>(
+                            core::mem::transmute::<&mut MapHeapData, &'static mut MapHeapData>(
                                 &mut agent[target],
                             )
                         };

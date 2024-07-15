@@ -49,8 +49,8 @@ pub enum Function {
     ECMAScriptGeneratorFunction = ECMASCRIPT_GENERATOR_FUNCTION_DISCRIMINANT,
 }
 
-impl std::fmt::Debug for Function {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for Function {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Function::BoundFunction(d) => write!(f, "BoundFunction({:?})", d),
             Function::BuiltinFunction(d) => write!(f, "BuiltinFunction({:?})", d),
@@ -470,7 +470,7 @@ impl InternalMethods for Function {
         }
     }
 
-    fn internal_own_property_keys(self, agent: &mut Agent) -> JsResult<Vec<PropertyKey>> {
+    fn internal_own_property_keys(self, agent: &mut Agent) -> JsResult<alloc::vec::Vec<PropertyKey>> {
         match self {
             Function::BoundFunction(x) => x.internal_own_property_keys(agent),
             Function::BuiltinFunction(x) => x.internal_own_property_keys(agent),

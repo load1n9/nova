@@ -2,7 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
+use alloc::vec::Vec;
 
 use crate::{
     ecmascript::{
@@ -416,7 +417,7 @@ impl InternalMethods for Module {
         // 2. Let symbolKeys be OrdinaryOwnPropertyKeys(O).
         let symbol_keys = self
             .get_backing_object(agent)
-            .map_or(vec![], |object| ordinary_own_property_keys(agent, object));
+            .map_or(alloc::vec![], |object| ordinary_own_property_keys(agent, object));
         let symbol_keys_count = symbol_keys.len();
         // 3. Return the list-concatenation of exports and symbolKeys.
         let mut own_property_keys = Vec::with_capacity(exports_count + symbol_keys_count);

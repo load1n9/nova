@@ -34,7 +34,7 @@ use crate::ecmascript::{
             promise_resolving_functions::PromiseResolvingFunctionHeapData,
         },
         data_view::data::DataViewHeapData,
-        date::data::DateHeapData,
+        date::{data::DateHeapData, Date},
         embedder_object::data::EmbedderObjectHeapData,
         error::ErrorHeapData,
         finalization_registry::data::FinalizationRegistryHeapData,
@@ -53,6 +53,7 @@ use crate::ecmascript::{
     },
     types::{HeapNumber, HeapString, OrdinaryObject, BUILTIN_STRINGS_LIST},
 };
+use alloc::vec::Vec;
 use crate::ecmascript::{
     builtins::{ArrayBufferHeapData, ArrayHeapData},
     execution::{Environments, Realm, RealmIdentifier},
@@ -75,7 +76,7 @@ pub struct Heap {
     pub bound_functions: Vec<Option<BoundFunctionHeapData>>,
     pub builtin_functions: Vec<Option<BuiltinFunctionHeapData>>,
     pub data_views: Vec<Option<DataViewHeapData>>,
-    pub dates: Vec<Option<DateHeapData>>,
+    pub dates: Vec<Option<DateHeapData<Date>>>,
     pub ecmascript_functions: Vec<Option<ECMAScriptFunctionHeapData>>,
     /// ElementsArrays is where all element arrays live;
     /// Element arrays are static arrays of Values plus
@@ -125,8 +126,8 @@ impl CreateHeapData<&str, String> for Heap {
     }
 }
 
-impl CreateHeapData<std::string::String, String> for Heap {
-    fn create(&mut self, data: std::string::String) -> String {
+impl CreateHeapData<alloc::string::String, String> for Heap {
+    fn create(&mut self, data: alloc::string::String) -> String {
         if let Ok(value) = String::try_from(data.as_str()) {
             value
         } else {
@@ -240,7 +241,7 @@ impl Heap {
     /// SmallString. All SmallStrings must be kept on the stack to ensure that
     /// comparison between heap allocated strings and SmallStrings can be
     /// guaranteed to never equal true.
-    unsafe fn alloc_string(&mut self, message: std::string::String) -> String {
+    unsafe fn alloc_string(&mut self, message: alloc::string::String) -> String {
         let found = self.find_equal_string(message.as_str());
         if let Some(idx) = found {
             return idx;

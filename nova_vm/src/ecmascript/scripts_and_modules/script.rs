@@ -30,12 +30,15 @@ use oxc_ast::{
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::{Parser, ParserReturn};
 use oxc_span::SourceType;
-use std::{
+use core::{
     any::Any,
-    collections::HashSet,
     marker::PhantomData,
     ops::{Index, IndexMut},
 };
+use alloc::boxed::Box;
+use alloc::vec::Vec;
+use alloc::vec;
+use hashbrown::HashSet;
 
 pub type HostDefined = &'static mut dyn Any;
 
@@ -203,7 +206,7 @@ pub fn parse_script(
         // SAFETY: Program retains at least a logical connection to `source_text`, possibly even
         // direct references. This should be safe because we move the `source_text` into the Script
         // struct, making it self-referential. Hence we must use the 'static lifetime.
-        ecmascript_code: unsafe { std::mem::transmute::<Program<'_>, Program<'static>>(program) },
+        ecmascript_code: unsafe { core::mem::transmute::<Program<'_>, Program<'static>>(program) },
         // [[LoadedModules]]: « »,
         loaded_modules: (),
         // [[HostDefined]]: hostDefined,
@@ -320,7 +323,7 @@ pub(crate) fn global_declaration_instantiation(
         // Thus in effect VarScopedDeclaration<'_> is valid for the duration
         // of the global_declaration_instantiation call.
         let script =
-            unsafe { std::mem::transmute::<&Program<'_>, &'static Program<'static>>(script) };
+            unsafe { core::mem::transmute::<&Program<'_>, &'static Program<'static>>(script) };
         // 1. Let lexNames be the LexicallyDeclaredNames of script.
         let lex_names = script_lexically_declared_names(script);
         // 2. Let varNames be the VarDeclaredNames of script.

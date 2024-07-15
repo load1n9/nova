@@ -2,7 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Deref, Index, IndexMut};
+use alloc::vec::Vec;
+use core::ops::{Deref, Index, IndexMut};
 
 use crate::{
     ecmascript::{
@@ -439,7 +440,7 @@ impl InternalMethods for BuiltinFunction {
         if let Some(object_index) = self.get_backing_object(agent) {
             object_index.internal_own_property_keys(agent)
         } else {
-            Ok(vec![
+            Ok(alloc::vec![
                 PropertyKey::from(BUILTIN_STRING_MEMORY.length),
                 PropertyKey::from(BUILTIN_STRING_MEMORY.name),
             ])
@@ -582,7 +583,7 @@ pub fn create_builtin_function(
     let initial_name = if let Some(prefix) = args.prefix {
         // 12. Else,
         // a. Perform SetFunctionName(func, name, prefix).
-        String::from_string(agent, format!("{} {}", args.name, prefix))
+        String::from_string(agent, alloc::format!("{} {}", args.name, prefix))
     } else {
         // 11. If prefix is not present, then
         // a. Perform SetFunctionName(func, name).

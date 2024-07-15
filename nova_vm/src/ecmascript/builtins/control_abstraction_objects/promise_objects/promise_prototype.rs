@@ -168,7 +168,7 @@ pub(crate) fn perform_promise_then(
                 Some(PromiseReactions::Many(reaction_vec)) => reaction_vec.push(fulfill_reaction),
                 Some(PromiseReactions::One(reaction)) => {
                     *fulfill_reactions =
-                        Some(PromiseReactions::Many(vec![*reaction, fulfill_reaction]))
+                        Some(PromiseReactions::Many(alloc::vec![*reaction, fulfill_reaction]))
                 }
                 None => *fulfill_reactions = Some(PromiseReactions::One(fulfill_reaction)),
             };
@@ -177,7 +177,7 @@ pub(crate) fn perform_promise_then(
                 Some(PromiseReactions::Many(reaction_vec)) => reaction_vec.push(reject_reaction),
                 Some(PromiseReactions::One(reaction)) => {
                     *reject_reactions =
-                        Some(PromiseReactions::Many(vec![*reaction, reject_reaction]))
+                        Some(PromiseReactions::Many(alloc::vec![*reaction, reject_reaction]))
                 }
                 None => *reject_reactions = Some(PromiseReactions::One(reject_reaction)),
             };
