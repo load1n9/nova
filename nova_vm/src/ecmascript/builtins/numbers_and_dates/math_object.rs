@@ -5,7 +5,10 @@ use std::f64::consts;
 
 use crate::{
     ecmascript::{
-        abstract_operations::type_conversion::{to_number, to_uint32},
+        abstract_operations::{
+            operations_on_iterator_objects::get_iterator,
+            type_conversion::{to_number, to_uint32},
+        },
         builders::ordinary_object_builder::OrdinaryObjectBuilder,
         builtins::{ArgumentsList, Builtin},
         execution::{Agent, JsResult, RealmIdentifier},
@@ -1255,6 +1258,53 @@ impl MathObject {
 
         // 5. Return the integral Number nearest n in the direction of +0𝔽.
         Ok(Value::from_f64(agent, n.trunc()))
+    }
+
+    // stage 2.7
+    fn sum_precise(agent: &mut Agent, arguments: ArgumentsList) -> JsResult<Value> {
+        // 1. Perform ? RequireObjectCoercible(items).
+        let items = arguments.get(0);
+        // 2. Let iteratorRecord be ? GetIterator(items, sync).
+        let _iterator_record = get_iterator(agent, items, false)?;
+        // 3. Let state be minus-zero.
+        let _state = Number::neg_zero();
+        // 4. Let sum be 0.
+        let _sum = 0.0;
+        // 5. Let count be 0.
+        let _count = 0;
+        // 6. Let next be not-started.
+        // 7. Repeat, while next is not done,
+
+        // a. Set next to ? IteratorStepValue(iteratorRecord).
+        // b. If next is not done, then
+        // i. Set count to count + 1.
+        // ii. If count ≥ 2**53, then
+        // 1. Let error be ThrowCompletion(a newly created RangeError object).
+        // 2. Return ? IteratorClose(iteratorRecord, error).
+        // iii. NOTE: The above case is not expected to be reached in practice and is included only so that implementations may rely on inputs being "reasonably sized" without violating this specification.
+        // iv. If next is not a Number, then
+        // 1. Let error be ThrowCompletion(a newly created TypeError object).
+        // 2. Return ? IteratorClose(iteratorRecord, error).
+        // v. Let n be next.
+        // vi. If state is not not-a-number, then
+        // 1. If n is NaN, then
+        // a. Set state to not-a-number.
+        // 2. Else if n is +∞𝔽, then
+        // a. If state is minus-infinity, set state to not-a-number.
+        // b. Else, set state to plus-infinity.
+        // 3. Else if n is -∞𝔽, then
+        // a. If state is plus-infinity, set state to not-a-number.
+        // b. Else, set state to minus-infinity.
+        // 4. Else if n is not -0𝔽 and state is either minus-zero or finite, then
+        // a. Set state to finite.
+        // b. Set sum to sum + ℝ(n).
+        // 8. If state is not-a-number, return NaN.
+        // 9. If state is plus-infinity, return +∞𝔽.
+        // 10. If state is minus-infinity, return -∞𝔽.
+        // 11. If state is minus-zero, return -0𝔽.
+        // 12. Return 𝔽(sum).
+        // 13. NOTE: The value of sum can be computed without arbitrary-precision arithmetic by a variety of algorithms. One such is the "Grow-Expansion" algorithm given in Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates by Jonathan Richard Shewchuk. A more recent algorithm is given in "Fast exact summation using small and large superaccumulators", code for which is available at https://gitlab.com/radfordneal/xsum.
+        todo!()
     }
 
     pub(crate) fn create_intrinsic(agent: &mut Agent, realm: RealmIdentifier) {
