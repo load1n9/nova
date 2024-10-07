@@ -26,7 +26,6 @@ use crate::ecmascript::{
                 promise_resolving_functions::BuiltinPromiseResolvingFunction,
             },
         },
-        data_view::DataView,
         date::Date,
         embedder_object::EmbedderObject,
         error::Error,
@@ -58,6 +57,9 @@ use crate::ecmascript::{
         bigint::HeapBigInt, HeapNumber, HeapString, OrdinaryObject, Symbol, BUILTIN_STRINGS_LIST,
     },
 };
+
+#[cfg(feature = "data-view")]
+use crate::ecmascript::builtins::data_view::DataView;
 
 pub fn heap_gc(heap: &mut Heap, root_realms: &mut [Option<RealmIdentifier>]) {
     let mut bits = HeapBits::new(heap);
@@ -109,6 +111,7 @@ pub fn heap_gc(heap: &mut Heap, root_realms: &mut [Option<RealmIdentifier>]) {
             bigints,
             bound_functions,
             builtin_functions,
+            #[cfg(feature = "data-view")]
             data_views,
             dates,
             ecmascript_functions,
@@ -392,19 +395,22 @@ pub fn heap_gc(heap: &mut Heap, root_realms: &mut [Option<RealmIdentifier>]) {
                 builtin_functions.get(index).mark_values(&mut queues);
             }
         });
-        let mut data_view_marks: Box<[DataView]> = queues.data_views.drain(..).collect();
-        data_view_marks.sort();
-        data_view_marks.iter().for_each(|&idx| {
-            let index = idx.get_index();
-            if let Some(marked) = bits.data_views.get_mut(index) {
-                if *marked {
-                    // Already marked, ignore
-                    return;
+        #[cfg(feature = "data-view")]
+        {
+            let mut data_view_marks: Box<[DataView]> = queues.data_views.drain(..).collect();
+            data_view_marks.sort();
+            data_view_marks.iter().for_each(|&idx| {
+                let index = idx.get_index();
+                if let Some(marked) = bits.data_views.get_mut(index) {
+                    if *marked {
+                        // Already marked, ignore
+                        return;
+                    }
+                    *marked = true;
+                    data_views.get(index).mark_values(&mut queues);
                 }
-                *marked = true;
-                data_views.get(index).mark_values(&mut queues);
-            }
-        });
+            });
+        }
         let mut date_marks: Box<[Date]> = queues.dates.drain(..).collect();
         date_marks.sort();
         date_marks.iter().for_each(|&idx| {
@@ -902,6 +908,7 @@ fn sweep(heap: &mut Heap, bits: &HeapBits, root_realms: &mut [Option<RealmIdenti
         bigints,
         bound_functions,
         builtin_functions,
+        #[cfg(feature = "data-view")]
         data_views,
         dates,
         ecmascript_functions,
@@ -1103,10 +1110,13 @@ fn sweep(heap: &mut Heap, bits: &HeapBits, root_realms: &mut [Option<RealmIdenti
                 sweep_heap_vector_values(builtin_functions, &compactions, &bits.builtin_functions);
             });
         }
-        if !data_views.is_empty() {
-            s.spawn(|| {
-                sweep_heap_vector_values(data_views, &compactions, &bits.data_views);
-            });
+        #[cfg(feature = "data-view")]
+        {
+            if !data_views.is_empty() {
+                s.spawn(|| {
+                    sweep_heap_vector_values(data_views, &compactions, &bits.data_views);
+                });
+            }
         }
         if !dates.is_empty() {
             s.spawn(|| {

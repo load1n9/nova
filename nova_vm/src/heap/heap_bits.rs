@@ -19,7 +19,6 @@ use crate::ecmascript::{
                 promise_resolving_functions::BuiltinPromiseResolvingFunction,
             },
         },
-        data_view::DataView,
         date::Date,
         embedder_object::EmbedderObject,
         error::Error,
@@ -53,6 +52,9 @@ use crate::ecmascript::{
     },
 };
 
+#[cfg(feature = "data-view")]
+use crate::ecmascript::builtins::data_view::data::DataView;
+
 #[derive(Debug)]
 pub struct HeapBits {
     pub array_buffers: Box<[bool]>,
@@ -62,6 +64,7 @@ pub struct HeapBits {
     pub bigints: Box<[bool]>,
     pub bound_functions: Box<[bool]>,
     pub builtin_functions: Box<[bool]>,
+    #[cfg(feature = "data-view")]
     pub data_views: Box<[bool]>,
     pub dates: Box<[bool]>,
     pub declarative_environments: Box<[bool]>,
@@ -115,6 +118,7 @@ pub(crate) struct WorkQueues {
     pub bigints: Vec<HeapBigInt>,
     pub bound_functions: Vec<BoundFunction>,
     pub builtin_functions: Vec<BuiltinFunction>,
+    #[cfg(feature = "data-view")]
     pub data_views: Vec<DataView>,
     pub dates: Vec<Date>,
     pub declarative_environments: Vec<DeclarativeEnvironmentIndex>,
@@ -168,6 +172,7 @@ impl HeapBits {
         let bigints = vec![false; heap.bigints.len()];
         let bound_functions = vec![false; heap.bound_functions.len()];
         let builtin_functions = vec![false; heap.builtin_functions.len()];
+        #[cfg(feature = "data-view")]
         let data_views = vec![false; heap.data_views.len()];
         let dates = vec![false; heap.dates.len()];
         let declarative_environments = vec![false; heap.environments.declarative.len()];
@@ -218,6 +223,7 @@ impl HeapBits {
             bigints: bigints.into_boxed_slice(),
             bound_functions: bound_functions.into_boxed_slice(),
             builtin_functions: builtin_functions.into_boxed_slice(),
+            #[cfg(feature = "data-view")]
             data_views: data_views.into_boxed_slice(),
             dates: dates.into_boxed_slice(),
             declarative_environments: declarative_environments.into_boxed_slice(),
@@ -274,6 +280,7 @@ impl WorkQueues {
             bigints: Vec::with_capacity(heap.bigints.len() / 4),
             bound_functions: Vec::with_capacity(heap.bound_functions.len() / 4),
             builtin_functions: Vec::with_capacity(heap.builtin_functions.len() / 4),
+            #[cfg(feature = "data-view")]
             data_views: Vec::with_capacity(heap.data_views.len() / 4),
             dates: Vec::with_capacity(heap.dates.len() / 4),
             declarative_environments: Vec::with_capacity(heap.environments.declarative.len() / 4),
@@ -353,6 +360,7 @@ impl WorkQueues {
             bigints,
             bound_functions,
             builtin_functions,
+            #[cfg(feature = "data-view")]
             data_views,
             dates,
             declarative_environments,
@@ -396,6 +404,9 @@ impl WorkQueues {
             weak_refs,
             weak_sets,
         } = self;
+
+        
+
         array_buffers.is_empty()
             && arrays.is_empty()
             && array_iterators.is_empty()
@@ -403,7 +414,6 @@ impl WorkQueues {
             && bigints.is_empty()
             && bound_functions.is_empty()
             && builtin_functions.is_empty()
-            && data_views.is_empty()
             && dates.is_empty()
             && declarative_environments.is_empty()
             && e_2_10.is_empty()
@@ -594,6 +604,7 @@ pub(crate) struct CompactionLists {
     pub bigints: CompactionList,
     pub bound_functions: CompactionList,
     pub builtin_functions: CompactionList,
+    #[cfg(feature = "data-view")]
     pub data_views: CompactionList,
     pub dates: CompactionList,
     pub declarative_environments: CompactionList,
@@ -698,6 +709,7 @@ impl CompactionLists {
             strings: CompactionList::from_mark_bits(&bits.strings),
             shared_array_buffers: CompactionList::from_mark_bits(&bits.shared_array_buffers),
             symbols: CompactionList::from_mark_bits(&bits.symbols),
+            #[cfg(feature = "data-view")]
             data_views: CompactionList::from_mark_bits(&bits.data_views),
             finalization_registrys: CompactionList::from_mark_bits(&bits.finalization_registrys),
             proxys: CompactionList::from_mark_bits(&bits.proxys),

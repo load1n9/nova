@@ -26,6 +26,7 @@ wtf8 = { workspace = true }
 default = ["math", "json"]
 math = []
 json = ["sonic-rs"]
+data-view = []
 
 typescript = []
 

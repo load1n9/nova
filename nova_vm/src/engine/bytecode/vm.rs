@@ -2042,7 +2042,6 @@ fn typeof_operator(_: &mut Agent, val: Value) -> String {
         Value::PrimitiveObject(_) |
         Value::RegExp(_) |
         Value::Arguments(_) |
-        Value::DataView(_) |
         Value::FinalizationRegistry(_) |
         Value::Map(_) |
         Value::Promise(_) |
@@ -2071,6 +2070,8 @@ fn typeof_operator(_: &mut Agent, val: Value) -> String {
         Value::Generator(_) |
         Value::Module(_) |
         Value::EmbedderObject(_) => BUILTIN_STRING_MEMORY.object,
+        #[cfg(feature = "data-view")]
+        Value::DataView(_) => BUILTIN_STRING_MEMORY.object,
         // 13. If val has a [[Call]] internal slot, return "function".
         Value::BoundFunction(_) | Value::BuiltinFunction(_) | Value::ECMAScriptFunction(_) |
         Value::BuiltinGeneratorFunction |

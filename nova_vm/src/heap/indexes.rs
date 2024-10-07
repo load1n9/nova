@@ -5,7 +5,6 @@
 use crate::ecmascript::{
     builtins::{
         control_abstraction_objects::generator_objects::GeneratorHeapData,
-        data_view::data::DataViewHeapData,
         date::data::DateHeapData,
         embedder_object::data::EmbedderObjectHeapData,
         error::ErrorHeapData,
@@ -33,6 +32,8 @@ use crate::ecmascript::{
         NumberHeapData, ObjectHeapData, StringHeapData, SymbolHeapData, Value,
     },
 };
+#[cfg(feature = "data-view")]
+use crate::ecmascript::builtins::data_view::data::DataViewHeapData;
 
 use core::fmt::Debug;
 use std::{
@@ -162,6 +163,7 @@ pub type ArrayIteratorIndex = BaseIndex<ArrayIteratorHeapData>;
 pub type BigIntIndex = BaseIndex<BigIntHeapData>;
 pub type BoundFunctionIndex = BaseIndex<BoundFunctionHeapData>;
 pub type BuiltinFunctionIndex = BaseIndex<BuiltinFunctionHeapData>;
+#[cfg(feature = "data-view")]
 pub type DataViewIndex = BaseIndex<DataViewHeapData>;
 pub type DateIndex = BaseIndex<DateHeapData>;
 pub type ECMAScriptFunctionIndex = BaseIndex<ECMAScriptFunctionHeapData>;

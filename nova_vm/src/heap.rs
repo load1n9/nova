@@ -39,7 +39,6 @@ use crate::ecmascript::{
                 promise_resolving_functions::PromiseResolvingFunctionHeapData,
             },
         },
-        data_view::data::DataViewHeapData,
         date::data::DateHeapData,
         embedder_object::data::EmbedderObjectHeapData,
         error::ErrorHeapData,
@@ -77,6 +76,9 @@ use crate::ecmascript::{
         NumberHeapData, Object, ObjectHeapData, String, StringHeapData, SymbolHeapData, Value,
     },
 };
+#[cfg(feature = "data-view")]
+use crate::ecmascript::builtins::data_view::data::DataViewHeapData;
+
 pub(crate) use heap_bits::{CompactionLists, HeapMarkAndSweep, WorkQueues};
 
 #[derive(Debug)]
@@ -88,6 +90,7 @@ pub struct Heap {
     pub bigints: Vec<Option<BigIntHeapData>>,
     pub bound_functions: Vec<Option<BoundFunctionHeapData>>,
     pub builtin_functions: Vec<Option<BuiltinFunctionHeapData>>,
+    #[cfg(feature = "data-view")]
     pub data_views: Vec<Option<DataViewHeapData>>,
     pub dates: Vec<Option<DateHeapData>>,
     pub ecmascript_functions: Vec<Option<ECMAScriptFunctionHeapData>>,
@@ -168,6 +171,7 @@ impl Heap {
             bigints: Vec::with_capacity(1024),
             bound_functions: Vec::with_capacity(256),
             builtin_functions: Vec::with_capacity(1024),
+            #[cfg(feature = "data-view")]
             data_views: Vec::with_capacity(0),
             dates: Vec::with_capacity(1024),
             ecmascript_functions: Vec::with_capacity(1024),

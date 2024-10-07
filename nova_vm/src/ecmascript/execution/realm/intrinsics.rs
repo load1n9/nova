@@ -171,6 +171,7 @@ pub enum ProtoIntrinsics {
     BigInt64Array,
     BigUint64Array,
     Boolean,
+    #[cfg(feature = "data-view")]
     DataView,
     Date,
     Error,
@@ -291,8 +292,11 @@ impl Intrinsics {
         ArrayBufferConstructor::create_intrinsic(agent, realm);
         SharedArrayBufferPrototype::create_intrinsic(agent, realm);
         SharedArrayBufferConstructor::create_intrinsic(agent, realm);
-        DataViewPrototype::create_intrinsic(agent, realm);
-        DataViewConstructor::create_intrinsic(agent, realm);
+        #[cfg(feature = "data-view")]
+        {
+            DataViewPrototype::create_intrinsic(agent, realm);
+            DataViewConstructor::create_intrinsic(agent, realm);
+        }
         AtomicsObject::create_intrinsic(agent, realm);
         #[cfg(feature = "json")]
         JSONObject::create_intrinsic(agent, realm);
@@ -350,6 +354,7 @@ impl Intrinsics {
             }
             ProtoIntrinsics::BigInt64Array => self.big_int64_array_prototype().into(),
             ProtoIntrinsics::BigUint64Array => self.big_int64_array_prototype().into(),
+            #[cfg(feature = "data-view")]
             ProtoIntrinsics::DataView => self.data_view_prototype().into(),
             ProtoIntrinsics::FinalizationRegistry => self.finalization_registry_prototype().into(),
             ProtoIntrinsics::Float32Array => self.float32_array_prototype().into(),

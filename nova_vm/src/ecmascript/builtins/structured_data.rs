@@ -4,6 +4,7 @@
 
 pub(crate) mod array_buffer_objects;
 pub(crate) mod atomics_object;
+#[cfg(feature = "data-view")]
 pub(crate) mod data_view_objects;
 #[cfg(feature = "json")]
 pub(crate) mod json_object;

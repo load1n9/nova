@@ -20,7 +20,6 @@ use crate::{
                 generator_objects::Generator,
                 promise_objects::promise_abstract_operations::promise_resolving_functions::BuiltinPromiseResolvingFunction,
             },
-            data_view::DataView,
             date::Date,
             embedder_object::EmbedderObject,
             error::Error,
@@ -50,6 +49,8 @@ use crate::{
     heap::{indexes::TypedArrayIndex, CompactionLists, HeapMarkAndSweep, WorkQueues},
     SmallInteger, SmallString,
 };
+#[cfg(feature = "data-view")]
+use crate::ecmascript::builtins::data_view::DataView;
 use std::{
     hash::{Hash, Hasher},
     mem::size_of,
@@ -141,6 +142,7 @@ pub enum Value {
     // TODO: MappedArguments(MappedArgumentsObject),
     Array(Array),
     ArrayBuffer(ArrayBuffer),
+    #[cfg(feature = "data-view")]
     DataView(DataView),
     Date(Date),
     Error(Error),
@@ -248,6 +250,7 @@ pub(crate) const PRIMITIVE_OBJECT_DISCRIMINANT: u8 =
     value_discriminant(Value::PrimitiveObject(PrimitiveObject::_def()));
 pub(crate) const ARGUMENTS_DISCRIMINANT: u8 =
     value_discriminant(Value::Arguments(OrdinaryObject::_def()));
+#[cfg(feature = "data-view")]
 pub(crate) const DATA_VIEW_DISCRIMINANT: u8 = value_discriminant(Value::DataView(DataView::_def()));
 pub(crate) const FINALIZATION_REGISTRY_DISCRIMINANT: u8 =
     value_discriminant(Value::FinalizationRegistry(FinalizationRegistry::_def()));
@@ -566,6 +569,7 @@ impl Value {
                 discriminant.hash(hasher);
                 data.get_index().hash(hasher);
             }
+            #[cfg(feature = "data-view")]
             Value::DataView(data) => {
                 discriminant.hash(hasher);
                 data.get_index().hash(hasher);
@@ -765,6 +769,7 @@ impl Value {
                 discriminant.hash(hasher);
                 data.get_index().hash(hasher);
             }
+            #[cfg(feature = "data-view")]
             Value::DataView(data) => {
                 discriminant.hash(hasher);
                 data.get_index().hash(hasher);
@@ -1007,6 +1012,7 @@ impl HeapMarkAndSweep for Value {
             Value::RegExp(data) => data.mark_values(queues),
             Value::PrimitiveObject(data) => data.mark_values(queues),
             Value::Arguments(data) => data.mark_values(queues),
+            #[cfg(feature = "data-view")]
             Value::DataView(data) => data.mark_values(queues),
             Value::FinalizationRegistry(data) => data.mark_values(queues),
             Value::Map(data) => data.mark_values(queues),
@@ -1071,6 +1077,7 @@ impl HeapMarkAndSweep for Value {
             Value::RegExp(data) => data.sweep_values(compactions),
             Value::PrimitiveObject(data) => data.sweep_values(compactions),
             Value::Arguments(data) => data.sweep_values(compactions),
+            #[cfg(feature = "data-view")]
             Value::DataView(data) => data.sweep_values(compactions),
             Value::FinalizationRegistry(data) => data.sweep_values(compactions),
             Value::Map(data) => data.sweep_values(compactions),
